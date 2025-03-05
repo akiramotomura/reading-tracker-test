@@ -1,6 +1,7 @@
 'use client';
 
 import { Book, ReadingRecord, UserProfile, Child, ReadingGoal, generateMockData } from '@/types';
+import { User } from 'firebase/auth';
 
 // ローカルストレージのキー
 const STORAGE_KEYS = {
@@ -24,6 +25,9 @@ export interface MockUser {
   lastLoginAt: string;
 }
 
+// コールバック関数の型定義
+type DataCallback<T> = (data: T) => void;
+
 // モックデータベースクラス
 class MockDatabase {
   private users: MockUser[] = [];
@@ -33,7 +37,7 @@ class MockDatabase {
   private children: Child[] = [];
   private goals: ReadingGoal[] = [];
   private currentUser: MockUser | null = null;
-  private listeners: Map<string, Function[]> = new Map();
+  private listeners: Map<string, DataCallback<unknown>[]> = new Map();
 
   constructor() {
     this.loadFromLocalStorage();
@@ -128,12 +132,14 @@ class MockDatabase {
   }
 
   // リスナーを追加
-  addListener(collection: string, callback: Function) {
+  addListener<T>(collection: string, callback: DataCallback<T>): () => void {
     if (!this.listeners.has(collection)) {
       this.listeners.set(collection, []);
     }
     
-    this.listeners.get(collection)?.push(callback);
+    // TypeScriptの型システムの制限により、ここでキャストが必要
+    const typedCallback = callback as DataCallback<unknown>;
+    this.listeners.get(collection)?.push(typedCallback);
     
     // 初期データを通知
     this.notifyListeners(collection);
@@ -141,7 +147,7 @@ class MockDatabase {
     // クリーンアップ関数を返す
     return () => {
       const listeners = this.listeners.get(collection) || [];
-      const index = listeners.indexOf(callback);
+      const index = listeners.indexOf(typedCallback);
       if (index !== -1) {
         listeners.splice(index, 1);
       }
@@ -489,9 +495,10 @@ class MockDatabase {
 export const mockDb = new MockDatabase();
 
 // モックユーザーの型をFirebaseのUser型に変換する関数
-export const convertToFirebaseUser = (mockUser: MockUser | null) => {
+export const convertToFirebaseUser = (mockUser: MockUser | null): User | null => {
   if (!mockUser) return null;
   
+  // Userインターフェースに合わせた型を返す
   return {
     uid: mockUser.uid,
     email: mockUser.email,
@@ -521,5 +528,5 @@ export const convertToFirebaseUser = (mockUser: MockUser | null) => {
     }),
     reload: async () => {},
     toJSON: () => ({ uid: mockUser.uid, email: mockUser.email })
-  } as any; // 型エラーを回避するためにanyを使用
+  } as User;
 };

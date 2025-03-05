@@ -9,7 +9,7 @@ import BookList from '@/components/books/BookList';
 
 export default function Home() {
   const { user } = useAuth();
-  const { books, readingRecords } = useReading();
+  // booksとreadingRecordsは直接使用されていないため削除
   const [activeTab, setActiveTab] = useState<'recent' | 'books'>('recent');
 
   return (
