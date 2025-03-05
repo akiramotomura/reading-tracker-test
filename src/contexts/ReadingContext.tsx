@@ -1,8 +1,9 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect } from 'react';
-import { Book, ReadingRecord, generateMockData } from '@/types';
+import { Book, ReadingRecord } from '@/types';
 import { useAuth } from './AuthContext';
+import { mockDb } from '@/lib/mockDb';
 
 interface ReadingContextType {
   books: Book[];
@@ -35,15 +36,14 @@ export const ReadingProvider = ({ children }: { children: React.ReactNode }) => 
     const loadData = async () => {
       setLoading(true);
       try {
-        // 開発環境ではモックデータを使用
-        if (process.env.NODE_ENV === 'development') {
-          const { books, readingRecords } = generateMockData();
-          setBooks(books);
-          setReadingRecords(readingRecords);
-          console.log('Loaded mock data:', { books, readingRecords });
-        } else {
-          // 本番環境では実際のデータを取得する処理を実装
-          // TODO: Firestore等からデータを取得する
+        if (user) {
+          // モックデータベースからデータを取得
+          const userBooks = await mockDb.getBooks(user.uid);
+          const userRecords = await mockDb.getReadingRecords(user.uid);
+          
+          setBooks(userBooks);
+          setReadingRecords(userRecords);
+          console.log('Loaded data from mock database:', { books: userBooks, readingRecords: userRecords });
         }
       } catch (error) {
         console.error('Failed to load reading data:', error);
@@ -54,6 +54,22 @@ export const ReadingProvider = ({ children }: { children: React.ReactNode }) => 
 
     if (user) {
       loadData();
+      
+      // データの変更を監視
+      const unsubscribeBooks = mockDb.addListener('books', (updatedBooks: Book[]) => {
+        const userBooks = updatedBooks.filter(book => book.userId === user.uid);
+        setBooks(userBooks);
+      });
+      
+      const unsubscribeRecords = mockDb.addListener('readingRecords', (updatedRecords: ReadingRecord[]) => {
+        const userRecords = updatedRecords.filter(record => record.userId === user.uid);
+        setReadingRecords(userRecords);
+      });
+      
+      return () => {
+        unsubscribeBooks();
+        unsubscribeRecords();
+      };
     } else {
       // ユーザーがログアウトした場合はデータをクリア
       setBooks([]);
@@ -64,84 +80,32 @@ export const ReadingProvider = ({ children }: { children: React.ReactNode }) => 
 
   // 本を追加
   const addBook = async (bookData: Omit<Book, 'id' | 'userId' | 'createdAt' | 'updatedAt'>): Promise<Book> => {
-    const now = new Date().toISOString();
-    const newBook: Book = {
-      ...bookData,
-      id: `book-${Date.now()}`,
-      userId: user?.uid || '1',
-      createdAt: now,
-      updatedAt: now
-    };
-
-    setBooks(prevBooks => [...prevBooks, newBook]);
-    return newBook;
+    return mockDb.addBook(bookData);
   };
 
   // 本を更新
   const updateBook = async (id: string, bookData: Partial<Book>): Promise<Book> => {
-    const bookIndex = books.findIndex(book => book.id === id);
-    if (bookIndex === -1) {
-      throw new Error(`Book with id ${id} not found`);
-    }
-
-    const updatedBook = {
-      ...books[bookIndex],
-      ...bookData,
-      updatedAt: new Date().toISOString()
-    };
-
-    const newBooks = [...books];
-    newBooks[bookIndex] = updatedBook;
-    setBooks(newBooks);
-
-    return updatedBook;
+    return mockDb.updateBook(id, bookData);
   };
 
   // 本を削除
   const deleteBook = async (id: string): Promise<void> => {
-    setBooks(prevBooks => prevBooks.filter(book => book.id !== id));
-    // 関連する読書記録も削除
-    setReadingRecords(prevRecords => prevRecords.filter(record => record.bookId !== id));
+    return mockDb.deleteBook(id);
   };
 
   // 読書記録を追加
   const addReadingRecord = async (recordData: Omit<ReadingRecord, 'id' | 'userId' | 'createdAt' | 'updatedAt'>): Promise<ReadingRecord> => {
-    const now = new Date().toISOString();
-    const newRecord: ReadingRecord = {
-      ...recordData,
-      id: `record-${Date.now()}`,
-      userId: user?.uid || '1',
-      createdAt: now,
-      updatedAt: now
-    };
-
-    setReadingRecords(prevRecords => [...prevRecords, newRecord]);
-    return newRecord;
+    return mockDb.addReadingRecord(recordData);
   };
 
   // 読書記録を更新
   const updateReadingRecord = async (id: string, recordData: Partial<ReadingRecord>): Promise<ReadingRecord> => {
-    const recordIndex = readingRecords.findIndex(record => record.id === id);
-    if (recordIndex === -1) {
-      throw new Error(`Reading record with id ${id} not found`);
-    }
-
-    const updatedRecord = {
-      ...readingRecords[recordIndex],
-      ...recordData,
-      updatedAt: new Date().toISOString()
-    };
-
-    const newRecords = [...readingRecords];
-    newRecords[recordIndex] = updatedRecord;
-    setReadingRecords(newRecords);
-
-    return updatedRecord;
+    return mockDb.updateReadingRecord(id, recordData);
   };
 
   // 読書記録を削除
   const deleteReadingRecord = async (id: string): Promise<void> => {
-    setReadingRecords(prevRecords => prevRecords.filter(record => record.id !== id));
+    return mockDb.deleteReadingRecord(id);
   };
 
   // IDで本を取得
