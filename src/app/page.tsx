@@ -67,7 +67,7 @@ export default function Home() {
         </section>
 
         {/* サービス概要 */}
-        <section className="py-16 bg-gray-50 px-4">
+        <section id="features" className="py-16 bg-gray-50 px-4">
           <div className="max-w-4xl mx-auto text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">サービスの特徴</h2>
             <p className="text-xl text-gray-600">
@@ -114,68 +114,8 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ストーリーテリング */}
-        <section className="py-16 px-4">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl font-bold mb-8 text-center">利用者の声</h2>
-            
-            <div className="bg-white p-6 rounded-xl shadow-soft mb-8">
-              <div className="flex items-start mb-4">
-                <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center mr-4 text-primary-600">
-                  <span className="font-bold">T.K</span>
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold">田中さん家族（小学2年生の男の子）</h3>
-                  <p className="text-gray-500">アプリ利用歴：1年2ヶ月</p>
-                </div>
-              </div>
-              <p className="text-gray-600 mb-4">
-                「息子は最初、読書があまり好きではなかったのですが、このアプリで記録をつけ始めてから、『今日は何を読もうかな』と自分から本を手に取るようになりました。特に、読んだ本の数がグラフで見えるのが嬉しいようで、『もっと読みたい！』というモチベーションにつながっています。」
-              </p>
-              <div className="flex items-center">
-                <div className="flex">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <svg key={star} className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                  ))}
-                </div>
-                <span className="ml-2 text-gray-600">5.0 / 5.0</span>
-              </div>
-            </div>
-            
-            <div className="bg-white p-6 rounded-xl shadow-soft">
-              <div className="flex items-start mb-4">
-                <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center mr-4 text-primary-600">
-                  <span className="font-bold">M.S</span>
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold">佐藤さん家族（年長の女の子）</h3>
-                  <p className="text-gray-500">アプリ利用歴：8ヶ月</p>
-                </div>
-              </div>
-              <p className="text-gray-600 mb-4">
-                「娘が読んだ本の感想を記録していくうちに、言葉の使い方や表現力が豊かになっていくのを実感しています。最初は『面白かった』だけだった感想が、今では『○○が△△で面白かった』と具体的に話せるようになりました。成長の記録として残せるのも嬉しいです。」
-              </p>
-              <div className="flex items-center">
-                <div className="flex">
-                  {[1, 2, 3, 4].map((star) => (
-                    <svg key={star} className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                  ))}
-                  <svg className="w-5 h-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                  </svg>
-                </div>
-                <span className="ml-2 text-gray-600">4.0 / 5.0</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
         {/* 機能紹介 */}
-        <section className="py-16 bg-gray-50 px-4">
+        <section id="functions" className="py-16 bg-gray-50 px-4">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-3xl font-bold mb-12 text-center">主な機能</h2>
             
@@ -252,7 +192,7 @@ export default function Home() {
         </section>
 
         {/* Q&A */}
-        <section className="py-16 px-4">
+        <section id="faq" className="py-16 px-4">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-3xl font-bold mb-8 text-center">よくある質問</h2>
             

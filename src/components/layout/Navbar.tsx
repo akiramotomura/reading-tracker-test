@@ -6,11 +6,19 @@ import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
 
-const navigation = [
+// ログイン済みユーザー向けナビゲーション
+const authNavigation = [
   { name: 'ホーム', href: '/', current: true },
   { name: '読書記録', href: '/reading-records', current: false },
   { name: '本の管理', href: '/books', current: false },
   { name: '分析', href: '/analytics', current: false },
+];
+
+// 未ログインユーザー向けナビゲーション（LPのセクションへのリンク）
+const publicNavigation = [
+  { name: 'サービスの特徴', href: '/#features', current: false },
+  { name: '主な機能', href: '/#functions', current: false },
+  { name: 'よくある質問', href: '/#faq', current: false },
 ];
 
 function classNames(...classes: string[]) {
@@ -27,6 +35,9 @@ interface DisclosureRenderProps {
 
 export default function Navbar() {
   const { user, logout } = useAuth();
+
+  // ユーザーの状態に応じてナビゲーションを選択
+  const navigation = user ? authNavigation : publicNavigation;
 
   return (
     <Disclosure as="nav" className="bg-white shadow-sm">

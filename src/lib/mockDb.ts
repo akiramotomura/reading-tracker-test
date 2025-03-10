@@ -77,6 +77,7 @@ class MockDatabase {
   private initialized = false;
   private isClient = false;
   private initializationPromise: Promise<void> | null = null;
+  private initializationError: Error | null = null;
 
   constructor() {
     // クライアントサイドかどうかを確認
@@ -95,7 +96,7 @@ class MockDatabase {
       return this.initializationPromise;
     }
     
-    this.initializationPromise = new Promise<void>((resolve) => {
+    this.initializationPromise = new Promise<void>((resolve, reject) => {
       if (this.initialized || !this.isClient) {
         resolve();
         return;
@@ -110,10 +111,15 @@ class MockDatabase {
         
         // 初期データがない場合は生成
         if (this.books.length === 0 || this.readingRecords.length === 0) {
-          const { books, readingRecords } = generateMockData();
-          this.books = books;
-          this.readingRecords = readingRecords;
-          this.saveToLocalStorage();
+          try {
+            const { books, readingRecords } = generateMockData();
+            this.books = books;
+            this.readingRecords = readingRecords;
+            this.saveToLocalStorage();
+          } catch (error) {
+            console.error('Failed to generate mock data:', error);
+            // エラーが発生しても続行
+          }
         }
         
         // デフォルトユーザーがない場合は作成
@@ -125,13 +131,15 @@ class MockDatabase {
         if (DEBUG) {
           console.log('MockDatabase: initialization complete');
         }
+        resolve();
       } catch (error) {
         console.error('MockDatabase: initialization failed', error);
+        // エラーを保存
+        this.initializationError = error instanceof Error ? error : new Error(String(error));
         // 初期化に失敗しても、最低限の機能は提供する
         this.initialized = true;
+        resolve(); // エラーがあっても解決する
       }
-      
-      resolve();
     });
     
     return this.initializationPromise;
@@ -263,6 +271,8 @@ class MockDatabase {
       setTimeout(() => {
         this.notifyListeners(collection);
       }, 0);
+    }).catch(error => {
+      console.error(`Error initializing database for listener (${collection}):`, error);
     });
     
     // クリーンアップ関数を返す
@@ -410,14 +420,19 @@ class MockDatabase {
     }
   }
 
-  getCurrentUser(): MockUser | null {
+  async getCurrentUser(): Promise<MockUser | null> {
     if (!this.isClient) {
       return null; // サーバーサイドでは常にnullを返す
     }
     
-    // 初期化されていない場合は初期化
+    // 初期化されていない場合は初期化して待機
     if (!this.initialized) {
-      this.initialize();
+      try {
+        await this.initialize();
+      } catch (error) {
+        console.error('Error initializing database for getCurrentUser:', error);
+        return null;
+      }
     }
     
     return this.currentUser;
