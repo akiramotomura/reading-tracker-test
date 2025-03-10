@@ -4,6 +4,7 @@ import './globals.css';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { ReadingProvider } from '@/contexts/ReadingContext';
 import Layout from '@/components/layout/Layout';
+import ClientErrorBoundary from '@/components/common/ClientErrorBoundary';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -20,11 +21,13 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body className={inter.className}>
-        <AuthProvider>
-          <ReadingProvider>
-            <Layout>{children}</Layout>
-          </ReadingProvider>
-        </AuthProvider>
+        <ClientErrorBoundary>
+          <AuthProvider>
+            <ReadingProvider>
+              <Layout>{children}</Layout>
+            </ReadingProvider>
+          </AuthProvider>
+        </ClientErrorBoundary>
       </body>
     </html>
   );

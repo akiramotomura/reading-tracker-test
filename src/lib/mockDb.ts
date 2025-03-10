@@ -39,41 +39,50 @@ class MockDatabase {
   private currentUser: MockUser | null = null;
   private listeners: Map<string, DataCallback<unknown>[]> = new Map();
   private initialized = false;
+  private isClient = false;
 
   constructor() {
-    // クライアントサイドでのみ初期化
-    if (typeof window !== 'undefined') {
-      this.initialize();
-    }
+    // クライアントサイドかどうかを確認
+    this.isClient = typeof window !== 'undefined';
+    
+    // コンストラクタでは初期化しない
+    // 初期化は明示的に呼び出す必要がある
+    console.log('MockDatabase: constructor called, isClient:', this.isClient);
   }
 
   // 初期化処理
   private initialize() {
-    if (this.initialized) return;
+    if (this.initialized || !this.isClient) return;
     
     console.log('MockDatabase: initializing');
-    this.loadFromLocalStorage();
-    
-    // 初期データがない場合は生成
-    if (this.books.length === 0 || this.readingRecords.length === 0) {
-      const { books, readingRecords } = generateMockData();
-      this.books = books;
-      this.readingRecords = readingRecords;
-      this.saveToLocalStorage();
+    try {
+      this.loadFromLocalStorage();
+      
+      // 初期データがない場合は生成
+      if (this.books.length === 0 || this.readingRecords.length === 0) {
+        const { books, readingRecords } = generateMockData();
+        this.books = books;
+        this.readingRecords = readingRecords;
+        this.saveToLocalStorage();
+      }
+      
+      // デフォルトユーザーがない場合は作成
+      if (this.users.length === 0) {
+        this.createDefaultUser();
+      }
+      
+      this.initialized = true;
+      console.log('MockDatabase: initialization complete');
+    } catch (error) {
+      console.error('MockDatabase: initialization failed', error);
+      // 初期化に失敗しても、最低限の機能は提供する
+      this.initialized = true;
     }
-    
-    // デフォルトユーザーがない場合は作成
-    if (this.users.length === 0) {
-      this.createDefaultUser();
-    }
-    
-    this.initialized = true;
-    console.log('MockDatabase: initialization complete');
   }
 
   // ローカルストレージからデータを読み込む
   private loadFromLocalStorage() {
-    if (typeof window === 'undefined') return;
+    if (!this.isClient) return;
 
     try {
       console.log('Loading data from localStorage');
@@ -113,7 +122,7 @@ class MockDatabase {
 
   // ローカルストレージにデータを保存
   private saveToLocalStorage() {
-    if (typeof window === 'undefined') return;
+    if (!this.isClient) return;
 
     try {
       localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(this.users));
@@ -167,8 +176,13 @@ class MockDatabase {
 
   // リスナーを追加
   addListener<T>(collection: string, callback: DataCallback<T>): () => void {
-    // クライアントサイドでのみ初期化
-    if (typeof window !== 'undefined' && !this.initialized) {
+    if (!this.isClient) {
+      console.log('addListener called on server side, returning dummy unsubscribe');
+      return () => {}; // サーバーサイドでは何もしない
+    }
+    
+    // 初期化されていない場合は初期化
+    if (!this.initialized) {
       this.initialize();
     }
     
@@ -181,7 +195,9 @@ class MockDatabase {
     this.listeners.get(collection)?.push(typedCallback);
     
     // 初期データを通知
-    this.notifyListeners(collection);
+    setTimeout(() => {
+      this.notifyListeners(collection);
+    }, 0);
     
     // クリーンアップ関数を返す
     return () => {
@@ -195,6 +211,8 @@ class MockDatabase {
 
   // リスナーに通知
   private notifyListeners(collection: string) {
+    if (!this.isClient) return;
+    
     const listeners = this.listeners.get(collection) || [];
     
     try {
@@ -228,8 +246,12 @@ class MockDatabase {
 
   // ユーザー認証関連のメソッド
   async signUp(email: string, password: string): Promise<MockUser> {
-    // クライアントサイドでのみ初期化
-    if (typeof window !== 'undefined' && !this.initialized) {
+    if (!this.isClient) {
+      throw new Error('Cannot sign up on server side');
+    }
+    
+    // 初期化されていない場合は初期化
+    if (!this.initialized) {
       this.initialize();
     }
     
@@ -276,8 +298,12 @@ class MockDatabase {
   }
 
   async signIn(email: string, password: string): Promise<MockUser> {
-    // クライアントサイドでのみ初期化
-    if (typeof window !== 'undefined' && !this.initialized) {
+    if (!this.isClient) {
+      throw new Error('Cannot sign in on server side');
+    }
+    
+    // 初期化されていない場合は初期化
+    if (!this.initialized) {
       this.initialize();
     }
     
@@ -299,6 +325,10 @@ class MockDatabase {
   }
 
   async signOut(): Promise<void> {
+    if (!this.isClient) {
+      throw new Error('Cannot sign out on server side');
+    }
+    
     console.log('Sign out attempt');
     this.currentUser = null;
     this.saveToLocalStorage();
@@ -307,8 +337,12 @@ class MockDatabase {
   }
 
   getCurrentUser(): MockUser | null {
-    // クライアントサイドでのみ初期化
-    if (typeof window !== 'undefined' && !this.initialized) {
+    if (!this.isClient) {
+      return null; // サーバーサイドでは常にnullを返す
+    }
+    
+    // 初期化されていない場合は初期化
+    if (!this.initialized) {
       this.initialize();
     }
     
@@ -317,8 +351,12 @@ class MockDatabase {
 
   // 本の管理
   async getBooks(userId?: string): Promise<Book[]> {
-    // クライアントサイドでのみ初期化
-    if (typeof window !== 'undefined' && !this.initialized) {
+    if (!this.isClient) {
+      return []; // サーバーサイドでは空の配列を返す
+    }
+    
+    // 初期化されていない場合は初期化
+    if (!this.initialized) {
       this.initialize();
     }
     
@@ -329,8 +367,12 @@ class MockDatabase {
   }
 
   async getBookById(id: string): Promise<Book | undefined> {
-    // クライアントサイドでのみ初期化
-    if (typeof window !== 'undefined' && !this.initialized) {
+    if (!this.isClient) {
+      return undefined; // サーバーサイドではundefinedを返す
+    }
+    
+    // 初期化されていない場合は初期化
+    if (!this.initialized) {
       this.initialize();
     }
     
@@ -338,8 +380,12 @@ class MockDatabase {
   }
 
   async addBook(bookData: Omit<Book, 'id' | 'userId' | 'createdAt' | 'updatedAt'>): Promise<Book> {
-    // クライアントサイドでのみ初期化
-    if (typeof window !== 'undefined' && !this.initialized) {
+    if (!this.isClient) {
+      throw new Error('Cannot add book on server side');
+    }
+    
+    // 初期化されていない場合は初期化
+    if (!this.initialized) {
       this.initialize();
     }
     
@@ -364,8 +410,12 @@ class MockDatabase {
   }
 
   async updateBook(id: string, bookData: Partial<Book>): Promise<Book> {
-    // クライアントサイドでのみ初期化
-    if (typeof window !== 'undefined' && !this.initialized) {
+    if (!this.isClient) {
+      throw new Error('Cannot update book on server side');
+    }
+    
+    // 初期化されていない場合は初期化
+    if (!this.initialized) {
       this.initialize();
     }
     
@@ -388,8 +438,12 @@ class MockDatabase {
   }
 
   async deleteBook(id: string): Promise<void> {
-    // クライアントサイドでのみ初期化
-    if (typeof window !== 'undefined' && !this.initialized) {
+    if (!this.isClient) {
+      throw new Error('Cannot delete book on server side');
+    }
+    
+    // 初期化されていない場合は初期化
+    if (!this.initialized) {
       this.initialize();
     }
     
@@ -404,8 +458,12 @@ class MockDatabase {
 
   // 読書記録の管理
   async getReadingRecords(userId?: string): Promise<ReadingRecord[]> {
-    // クライアントサイドでのみ初期化
-    if (typeof window !== 'undefined' && !this.initialized) {
+    if (!this.isClient) {
+      return []; // サーバーサイドでは空の配列を返す
+    }
+    
+    // 初期化されていない場合は初期化
+    if (!this.initialized) {
       this.initialize();
     }
     
@@ -416,8 +474,12 @@ class MockDatabase {
   }
 
   async getReadingRecordById(id: string): Promise<ReadingRecord | undefined> {
-    // クライアントサイドでのみ初期化
-    if (typeof window !== 'undefined' && !this.initialized) {
+    if (!this.isClient) {
+      return undefined; // サーバーサイドではundefinedを返す
+    }
+    
+    // 初期化されていない場合は初期化
+    if (!this.initialized) {
       this.initialize();
     }
     
@@ -425,8 +487,12 @@ class MockDatabase {
   }
 
   async getReadingRecordsByBookId(bookId: string): Promise<ReadingRecord[]> {
-    // クライアントサイドでのみ初期化
-    if (typeof window !== 'undefined' && !this.initialized) {
+    if (!this.isClient) {
+      return []; // サーバーサイドでは空の配列を返す
+    }
+    
+    // 初期化されていない場合は初期化
+    if (!this.initialized) {
       this.initialize();
     }
     
@@ -434,8 +500,12 @@ class MockDatabase {
   }
 
   async addReadingRecord(recordData: Omit<ReadingRecord, 'id' | 'userId' | 'createdAt' | 'updatedAt'>): Promise<ReadingRecord> {
-    // クライアントサイドでのみ初期化
-    if (typeof window !== 'undefined' && !this.initialized) {
+    if (!this.isClient) {
+      throw new Error('Cannot add reading record on server side');
+    }
+    
+    // 初期化されていない場合は初期化
+    if (!this.initialized) {
       this.initialize();
     }
     
@@ -460,8 +530,12 @@ class MockDatabase {
   }
 
   async updateReadingRecord(id: string, recordData: Partial<ReadingRecord>): Promise<ReadingRecord> {
-    // クライアントサイドでのみ初期化
-    if (typeof window !== 'undefined' && !this.initialized) {
+    if (!this.isClient) {
+      throw new Error('Cannot update reading record on server side');
+    }
+    
+    // 初期化されていない場合は初期化
+    if (!this.initialized) {
       this.initialize();
     }
     
@@ -484,8 +558,12 @@ class MockDatabase {
   }
 
   async deleteReadingRecord(id: string): Promise<void> {
-    // クライアントサイドでのみ初期化
-    if (typeof window !== 'undefined' && !this.initialized) {
+    if (!this.isClient) {
+      throw new Error('Cannot delete reading record on server side');
+    }
+    
+    // 初期化されていない場合は初期化
+    if (!this.initialized) {
       this.initialize();
     }
     
@@ -496,8 +574,12 @@ class MockDatabase {
 
   // プロファイル管理
   async getProfile(userId: string): Promise<UserProfile | undefined> {
-    // クライアントサイドでのみ初期化
-    if (typeof window !== 'undefined' && !this.initialized) {
+    if (!this.isClient) {
+      return undefined; // サーバーサイドではundefinedを返す
+    }
+    
+    // 初期化されていない場合は初期化
+    if (!this.initialized) {
       this.initialize();
     }
     
@@ -505,8 +587,12 @@ class MockDatabase {
   }
 
   async updateProfile(userId: string, profileData: Partial<UserProfile>): Promise<UserProfile> {
-    // クライアントサイドでのみ初期化
-    if (typeof window !== 'undefined' && !this.initialized) {
+    if (!this.isClient) {
+      throw new Error('Cannot update profile on server side');
+    }
+    
+    // 初期化されていない場合は初期化
+    if (!this.initialized) {
       this.initialize();
     }
     
@@ -531,8 +617,12 @@ class MockDatabase {
 
   // 子供の管理
   async getChildren(userId: string): Promise<Child[]> {
-    // クライアントサイドでのみ初期化
-    if (typeof window !== 'undefined' && !this.initialized) {
+    if (!this.isClient) {
+      return []; // サーバーサイドでは空の配列を返す
+    }
+    
+    // 初期化されていない場合は初期化
+    if (!this.initialized) {
       this.initialize();
     }
     
@@ -540,8 +630,12 @@ class MockDatabase {
   }
 
   async addChild(childData: Omit<Child, 'id' | 'createdAt' | 'updatedAt'>): Promise<Child> {
-    // クライアントサイドでのみ初期化
-    if (typeof window !== 'undefined' && !this.initialized) {
+    if (!this.isClient) {
+      throw new Error('Cannot add child on server side');
+    }
+    
+    // 初期化されていない場合は初期化
+    if (!this.initialized) {
       this.initialize();
     }
     
@@ -561,8 +655,12 @@ class MockDatabase {
   }
 
   async updateChild(id: string, childData: Partial<Child>): Promise<Child> {
-    // クライアントサイドでのみ初期化
-    if (typeof window !== 'undefined' && !this.initialized) {
+    if (!this.isClient) {
+      throw new Error('Cannot update child on server side');
+    }
+    
+    // 初期化されていない場合は初期化
+    if (!this.initialized) {
       this.initialize();
     }
     
@@ -585,8 +683,12 @@ class MockDatabase {
   }
 
   async deleteChild(id: string): Promise<void> {
-    // クライアントサイドでのみ初期化
-    if (typeof window !== 'undefined' && !this.initialized) {
+    if (!this.isClient) {
+      throw new Error('Cannot delete child on server side');
+    }
+    
+    // 初期化されていない場合は初期化
+    if (!this.initialized) {
       this.initialize();
     }
     
@@ -597,8 +699,12 @@ class MockDatabase {
 
   // 読書目標の管理
   async getGoals(userId: string): Promise<ReadingGoal[]> {
-    // クライアントサイドでのみ初期化
-    if (typeof window !== 'undefined' && !this.initialized) {
+    if (!this.isClient) {
+      return []; // サーバーサイドでは空の配列を返す
+    }
+    
+    // 初期化されていない場合は初期化
+    if (!this.initialized) {
       this.initialize();
     }
     
@@ -606,8 +712,12 @@ class MockDatabase {
   }
 
   async addGoal(goalData: Omit<ReadingGoal, 'id' | 'createdAt' | 'updatedAt'>): Promise<ReadingGoal> {
-    // クライアントサイドでのみ初期化
-    if (typeof window !== 'undefined' && !this.initialized) {
+    if (!this.isClient) {
+      throw new Error('Cannot add goal on server side');
+    }
+    
+    // 初期化されていない場合は初期化
+    if (!this.initialized) {
       this.initialize();
     }
     
@@ -627,8 +737,12 @@ class MockDatabase {
   }
 
   async updateGoal(id: string, goalData: Partial<ReadingGoal>): Promise<ReadingGoal> {
-    // クライアントサイドでのみ初期化
-    if (typeof window !== 'undefined' && !this.initialized) {
+    if (!this.isClient) {
+      throw new Error('Cannot update goal on server side');
+    }
+    
+    // 初期化されていない場合は初期化
+    if (!this.initialized) {
       this.initialize();
     }
     
@@ -651,8 +765,12 @@ class MockDatabase {
   }
 
   async deleteGoal(id: string): Promise<void> {
-    // クライアントサイドでのみ初期化
-    if (typeof window !== 'undefined' && !this.initialized) {
+    if (!this.isClient) {
+      throw new Error('Cannot delete goal on server side');
+    }
+    
+    // 初期化されていない場合は初期化
+    if (!this.initialized) {
       this.initialize();
     }
     
