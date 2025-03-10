@@ -1,4 +1,3 @@
-
 'use client';
 
 import { createContext, useContext, useEffect, useState } from 'react';
@@ -31,13 +30,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const extendedAuth = auth as ExtendedAuth;
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      console.log('Auth state changed:', user);
-      setUser(user);
-      setLoading(false);
-    });
+    console.log('AuthProvider: initializing');
+    try {
+      const unsubscribe = auth.onAuthStateChanged((user) => {
+        console.log('Auth state changed:', user);
+        setUser(user);
+        setLoading(false);
+      });
 
-    return unsubscribe;
+      return unsubscribe;
+    } catch (error) {
+      console.error('Error in auth state listener:', error);
+      setLoading(false);
+      return () => {};
+    }
   }, []);
 
   const signIn = async (email: string, password: string) => {
@@ -100,7 +106,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
 };

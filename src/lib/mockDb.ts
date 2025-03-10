@@ -38,8 +38,20 @@ class MockDatabase {
   private goals: ReadingGoal[] = [];
   private currentUser: MockUser | null = null;
   private listeners: Map<string, DataCallback<unknown>[]> = new Map();
+  private initialized = false;
 
   constructor() {
+    // クライアントサイドでのみ初期化
+    if (typeof window !== 'undefined') {
+      this.initialize();
+    }
+  }
+
+  // 初期化処理
+  private initialize() {
+    if (this.initialized) return;
+    
+    console.log('MockDatabase: initializing');
     this.loadFromLocalStorage();
     
     // 初期データがない場合は生成
@@ -54,6 +66,9 @@ class MockDatabase {
     if (this.users.length === 0) {
       this.createDefaultUser();
     }
+    
+    this.initialized = true;
+    console.log('MockDatabase: initialization complete');
   }
 
   // ローカルストレージからデータを読み込む
@@ -61,6 +76,7 @@ class MockDatabase {
     if (typeof window === 'undefined') return;
 
     try {
+      console.log('Loading data from localStorage');
       const usersJson = localStorage.getItem(STORAGE_KEYS.USERS);
       const booksJson = localStorage.getItem(STORAGE_KEYS.BOOKS);
       const recordsJson = localStorage.getItem(STORAGE_KEYS.READING_RECORDS);
@@ -76,8 +92,22 @@ class MockDatabase {
       if (childrenJson) this.children = JSON.parse(childrenJson);
       if (goalsJson) this.goals = JSON.parse(goalsJson);
       if (currentUserJson) this.currentUser = JSON.parse(currentUserJson);
+      
+      console.log('Data loaded from localStorage:', {
+        users: this.users.length,
+        books: this.books.length,
+        records: this.readingRecords.length
+      });
     } catch (error) {
       console.error('Failed to load data from localStorage:', error);
+      // エラーが発生した場合は空の配列を使用
+      this.users = [];
+      this.books = [];
+      this.readingRecords = [];
+      this.profiles = [];
+      this.children = [];
+      this.goals = [];
+      this.currentUser = null;
     }
   }
 
@@ -98,8 +128,11 @@ class MockDatabase {
       } else {
         localStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
       }
+      
+      console.log('Data saved to localStorage');
     } catch (error) {
       console.error('Failed to save data to localStorage:', error);
+      // エラーを無視して処理を続行
     }
   }
 
@@ -129,10 +162,16 @@ class MockDatabase {
     
     this.profiles.push(defaultProfile);
     this.saveToLocalStorage();
+    console.log('Default user created:', defaultUser.email);
   }
 
   // リスナーを追加
   addListener<T>(collection: string, callback: DataCallback<T>): () => void {
+    // クライアントサイドでのみ初期化
+    if (typeof window !== 'undefined' && !this.initialized) {
+      this.initialize();
+    }
+    
     if (!this.listeners.has(collection)) {
       this.listeners.set(collection, []);
     }
@@ -158,33 +197,44 @@ class MockDatabase {
   private notifyListeners(collection: string) {
     const listeners = this.listeners.get(collection) || [];
     
-    switch (collection) {
-      case 'users':
-        listeners.forEach(callback => callback(this.users));
-        break;
-      case 'books':
-        listeners.forEach(callback => callback(this.books));
-        break;
-      case 'readingRecords':
-        listeners.forEach(callback => callback(this.readingRecords));
-        break;
-      case 'profiles':
-        listeners.forEach(callback => callback(this.profiles));
-        break;
-      case 'children':
-        listeners.forEach(callback => callback(this.children));
-        break;
-      case 'goals':
-        listeners.forEach(callback => callback(this.goals));
-        break;
-      case 'auth':
-        listeners.forEach(callback => callback(this.currentUser));
-        break;
+    try {
+      switch (collection) {
+        case 'users':
+          listeners.forEach(callback => callback(this.users));
+          break;
+        case 'books':
+          listeners.forEach(callback => callback(this.books));
+          break;
+        case 'readingRecords':
+          listeners.forEach(callback => callback(this.readingRecords));
+          break;
+        case 'profiles':
+          listeners.forEach(callback => callback(this.profiles));
+          break;
+        case 'children':
+          listeners.forEach(callback => callback(this.children));
+          break;
+        case 'goals':
+          listeners.forEach(callback => callback(this.goals));
+          break;
+        case 'auth':
+          listeners.forEach(callback => callback(this.currentUser));
+          break;
+      }
+    } catch (error) {
+      console.error(`Error notifying ${collection} listeners:`, error);
     }
   }
 
   // ユーザー認証関連のメソッド
   async signUp(email: string, password: string): Promise<MockUser> {
+    // クライアントサイドでのみ初期化
+    if (typeof window !== 'undefined' && !this.initialized) {
+      this.initialize();
+    }
+    
+    console.log('Sign up attempt:', email);
+    
     // メールアドレスが既に使用されているか確認
     const existingUser = this.users.find(user => user.email === email);
     if (existingUser) {
@@ -221,10 +271,18 @@ class MockDatabase {
     this.notifyListeners('profiles');
     this.notifyListeners('auth');
     
+    console.log('Sign up successful:', newUser.uid);
     return newUser;
   }
 
   async signIn(email: string, password: string): Promise<MockUser> {
+    // クライアントサイドでのみ初期化
+    if (typeof window !== 'undefined' && !this.initialized) {
+      this.initialize();
+    }
+    
+    console.log('Sign in attempt:', email);
+    
     const user = this.users.find(user => user.email === email && user.password === password);
     if (!user) {
       throw new Error('メールアドレスまたはパスワードが正しくありません');
@@ -236,21 +294,34 @@ class MockDatabase {
     this.saveToLocalStorage();
     this.notifyListeners('auth');
     
+    console.log('Sign in successful:', user.uid);
     return user;
   }
 
   async signOut(): Promise<void> {
+    console.log('Sign out attempt');
     this.currentUser = null;
     this.saveToLocalStorage();
     this.notifyListeners('auth');
+    console.log('Sign out successful');
   }
 
   getCurrentUser(): MockUser | null {
+    // クライアントサイドでのみ初期化
+    if (typeof window !== 'undefined' && !this.initialized) {
+      this.initialize();
+    }
+    
     return this.currentUser;
   }
 
   // 本の管理
   async getBooks(userId?: string): Promise<Book[]> {
+    // クライアントサイドでのみ初期化
+    if (typeof window !== 'undefined' && !this.initialized) {
+      this.initialize();
+    }
+    
     if (userId) {
       return this.books.filter(book => book.userId === userId);
     }
@@ -258,10 +329,20 @@ class MockDatabase {
   }
 
   async getBookById(id: string): Promise<Book | undefined> {
+    // クライアントサイドでのみ初期化
+    if (typeof window !== 'undefined' && !this.initialized) {
+      this.initialize();
+    }
+    
     return this.books.find(book => book.id === id);
   }
 
   async addBook(bookData: Omit<Book, 'id' | 'userId' | 'createdAt' | 'updatedAt'>): Promise<Book> {
+    // クライアントサイドでのみ初期化
+    if (typeof window !== 'undefined' && !this.initialized) {
+      this.initialize();
+    }
+    
     if (!this.currentUser) {
       throw new Error('ログインが必要です');
     }
@@ -283,6 +364,11 @@ class MockDatabase {
   }
 
   async updateBook(id: string, bookData: Partial<Book>): Promise<Book> {
+    // クライアントサイドでのみ初期化
+    if (typeof window !== 'undefined' && !this.initialized) {
+      this.initialize();
+    }
+    
     const bookIndex = this.books.findIndex(book => book.id === id);
     if (bookIndex === -1) {
       throw new Error(`Book with id ${id} not found`);
@@ -302,6 +388,11 @@ class MockDatabase {
   }
 
   async deleteBook(id: string): Promise<void> {
+    // クライアントサイドでのみ初期化
+    if (typeof window !== 'undefined' && !this.initialized) {
+      this.initialize();
+    }
+    
     this.books = this.books.filter(book => book.id !== id);
     // 関連する読書記録も削除
     this.readingRecords = this.readingRecords.filter(record => record.bookId !== id);
@@ -313,6 +404,11 @@ class MockDatabase {
 
   // 読書記録の管理
   async getReadingRecords(userId?: string): Promise<ReadingRecord[]> {
+    // クライアントサイドでのみ初期化
+    if (typeof window !== 'undefined' && !this.initialized) {
+      this.initialize();
+    }
+    
     if (userId) {
       return this.readingRecords.filter(record => record.userId === userId);
     }
@@ -320,14 +416,29 @@ class MockDatabase {
   }
 
   async getReadingRecordById(id: string): Promise<ReadingRecord | undefined> {
+    // クライアントサイドでのみ初期化
+    if (typeof window !== 'undefined' && !this.initialized) {
+      this.initialize();
+    }
+    
     return this.readingRecords.find(record => record.id === id);
   }
 
   async getReadingRecordsByBookId(bookId: string): Promise<ReadingRecord[]> {
+    // クライアントサイドでのみ初期化
+    if (typeof window !== 'undefined' && !this.initialized) {
+      this.initialize();
+    }
+    
     return this.readingRecords.filter(record => record.bookId === bookId);
   }
 
   async addReadingRecord(recordData: Omit<ReadingRecord, 'id' | 'userId' | 'createdAt' | 'updatedAt'>): Promise<ReadingRecord> {
+    // クライアントサイドでのみ初期化
+    if (typeof window !== 'undefined' && !this.initialized) {
+      this.initialize();
+    }
+    
     if (!this.currentUser) {
       throw new Error('ログインが必要です');
     }
@@ -349,6 +460,11 @@ class MockDatabase {
   }
 
   async updateReadingRecord(id: string, recordData: Partial<ReadingRecord>): Promise<ReadingRecord> {
+    // クライアントサイドでのみ初期化
+    if (typeof window !== 'undefined' && !this.initialized) {
+      this.initialize();
+    }
+    
     const recordIndex = this.readingRecords.findIndex(record => record.id === id);
     if (recordIndex === -1) {
       throw new Error(`Reading record with id ${id} not found`);
@@ -368,6 +484,11 @@ class MockDatabase {
   }
 
   async deleteReadingRecord(id: string): Promise<void> {
+    // クライアントサイドでのみ初期化
+    if (typeof window !== 'undefined' && !this.initialized) {
+      this.initialize();
+    }
+    
     this.readingRecords = this.readingRecords.filter(record => record.id !== id);
     this.saveToLocalStorage();
     this.notifyListeners('readingRecords');
@@ -375,10 +496,20 @@ class MockDatabase {
 
   // プロファイル管理
   async getProfile(userId: string): Promise<UserProfile | undefined> {
+    // クライアントサイドでのみ初期化
+    if (typeof window !== 'undefined' && !this.initialized) {
+      this.initialize();
+    }
+    
     return this.profiles.find(profile => profile.id === userId);
   }
 
   async updateProfile(userId: string, profileData: Partial<UserProfile>): Promise<UserProfile> {
+    // クライアントサイドでのみ初期化
+    if (typeof window !== 'undefined' && !this.initialized) {
+      this.initialize();
+    }
+    
     const profileIndex = this.profiles.findIndex(profile => profile.id === userId);
     
     if (profileIndex === -1) {
@@ -400,10 +531,20 @@ class MockDatabase {
 
   // 子供の管理
   async getChildren(userId: string): Promise<Child[]> {
+    // クライアントサイドでのみ初期化
+    if (typeof window !== 'undefined' && !this.initialized) {
+      this.initialize();
+    }
+    
     return this.children.filter(child => child.userId === userId);
   }
 
   async addChild(childData: Omit<Child, 'id' | 'createdAt' | 'updatedAt'>): Promise<Child> {
+    // クライアントサイドでのみ初期化
+    if (typeof window !== 'undefined' && !this.initialized) {
+      this.initialize();
+    }
+    
     const now = new Date().toISOString();
     const newChild: Child = {
       ...childData,
@@ -420,6 +561,11 @@ class MockDatabase {
   }
 
   async updateChild(id: string, childData: Partial<Child>): Promise<Child> {
+    // クライアントサイドでのみ初期化
+    if (typeof window !== 'undefined' && !this.initialized) {
+      this.initialize();
+    }
+    
     const childIndex = this.children.findIndex(child => child.id === id);
     if (childIndex === -1) {
       throw new Error(`Child with id ${id} not found`);
@@ -439,6 +585,11 @@ class MockDatabase {
   }
 
   async deleteChild(id: string): Promise<void> {
+    // クライアントサイドでのみ初期化
+    if (typeof window !== 'undefined' && !this.initialized) {
+      this.initialize();
+    }
+    
     this.children = this.children.filter(child => child.id !== id);
     this.saveToLocalStorage();
     this.notifyListeners('children');
@@ -446,10 +597,20 @@ class MockDatabase {
 
   // 読書目標の管理
   async getGoals(userId: string): Promise<ReadingGoal[]> {
+    // クライアントサイドでのみ初期化
+    if (typeof window !== 'undefined' && !this.initialized) {
+      this.initialize();
+    }
+    
     return this.goals.filter(goal => goal.userId === userId);
   }
 
   async addGoal(goalData: Omit<ReadingGoal, 'id' | 'createdAt' | 'updatedAt'>): Promise<ReadingGoal> {
+    // クライアントサイドでのみ初期化
+    if (typeof window !== 'undefined' && !this.initialized) {
+      this.initialize();
+    }
+    
     const now = new Date().toISOString();
     const newGoal: ReadingGoal = {
       ...goalData,
@@ -466,6 +627,11 @@ class MockDatabase {
   }
 
   async updateGoal(id: string, goalData: Partial<ReadingGoal>): Promise<ReadingGoal> {
+    // クライアントサイドでのみ初期化
+    if (typeof window !== 'undefined' && !this.initialized) {
+      this.initialize();
+    }
+    
     const goalIndex = this.goals.findIndex(goal => goal.id === id);
     if (goalIndex === -1) {
       throw new Error(`Goal with id ${id} not found`);
@@ -485,6 +651,11 @@ class MockDatabase {
   }
 
   async deleteGoal(id: string): Promise<void> {
+    // クライアントサイドでのみ初期化
+    if (typeof window !== 'undefined' && !this.initialized) {
+      this.initialize();
+    }
+    
     this.goals = this.goals.filter(goal => goal.id !== id);
     this.saveToLocalStorage();
     this.notifyListeners('goals');
