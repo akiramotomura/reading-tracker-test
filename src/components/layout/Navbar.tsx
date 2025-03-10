@@ -29,13 +29,13 @@ export default function Navbar() {
   const { user, logout } = useAuth();
 
   return (
-    <Disclosure as="nav" className="bg-indigo-600">
+    <Disclosure as="nav" className="bg-white shadow-sm">
       {({ open }: DisclosureRenderProps) => (
         <>
-          <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="relative flex h-16 items-center justify-between">
               <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
-                <Disclosure.Button className="inline-flex items-center justify-center rounded-md p-2 text-indigo-200 hover:bg-indigo-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
+                <Disclosure.Button className="inline-flex items-center justify-center rounded-full p-2 text-gray-500 hover:bg-primary-50 hover:text-primary-500 focus:outline-none">
                   <span className="sr-only">メニューを開く</span>
                   {open ? (
                     <XMarkIcon className="block h-6 w-6" aria-hidden="true" />
@@ -46,7 +46,7 @@ export default function Navbar() {
               </div>
               <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
                 <div className="flex flex-shrink-0 items-center">
-                  <Link href="/" className="text-white text-xl font-bold">
+                  <Link href="/" className="text-primary-500 text-xl font-bold">
                     読書記録
                   </Link>
                 </div>
@@ -58,9 +58,9 @@ export default function Navbar() {
                         href={item.href}
                         className={classNames(
                           item.current
-                            ? 'bg-indigo-700 text-white'
-                            : 'text-indigo-200 hover:bg-indigo-500 hover:text-white',
-                          'rounded-md px-3 py-2 text-sm font-medium'
+                            ? 'text-primary-500 border-b-2 border-primary-500'
+                            : 'text-gray-500 hover:text-primary-500 hover:border-b-2 hover:border-primary-300',
+                          'px-3 py-2 text-sm font-medium'
                         )}
                         aria-current={item.current ? 'page' : undefined}
                       >
@@ -74,9 +74,9 @@ export default function Navbar() {
                 {user ? (
                   <Menu as="div" className="relative ml-3">
                     <div>
-                      <Menu.Button className="flex rounded-full bg-indigo-600 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-600">
+                      <Menu.Button className="flex rounded-full bg-white text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
                         <span className="sr-only">ユーザーメニュー</span>
-                        <div className="h-8 w-8 rounded-full bg-indigo-800 flex items-center justify-center text-white">
+                        <div className="h-10 w-10 rounded-full bg-primary-500 flex items-center justify-center text-white shadow-sm">
                           {user.email?.[0].toUpperCase()}
                         </div>
                       </Menu.Button>
@@ -90,14 +90,14 @@ export default function Navbar() {
                       leaveFrom="transform opacity-100 scale-100"
                       leaveTo="transform opacity-0 scale-95"
                     >
-                      <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                      <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-xl bg-white py-2 shadow-card ring-1 ring-black ring-opacity-5 focus:outline-none">
                         <Menu.Item>
                           {({ active }: MenuItemProps) => (
                             <button
                               onClick={() => logout()}
                               className={classNames(
-                                active ? 'bg-gray-100' : '',
-                                'block w-full px-4 py-2 text-sm text-gray-700 text-left'
+                                active ? 'bg-primary-50 text-primary-500' : 'text-gray-700',
+                                'block w-full px-4 py-2 text-sm text-left'
                               )}
                             >
                               ログアウト
@@ -110,7 +110,7 @@ export default function Navbar() {
                 ) : (
                   <Link
                     href="/auth/login"
-                    className="text-indigo-200 hover:bg-indigo-500 hover:text-white rounded-md px-3 py-2 text-sm font-medium"
+                    className="btn btn-primary"
                   >
                     ログイン
                   </Link>
@@ -128,9 +128,9 @@ export default function Navbar() {
                   href={item.href}
                   className={classNames(
                     item.current
-                      ? 'bg-indigo-700 text-white'
-                      : 'text-indigo-200 hover:bg-indigo-500 hover:text-white',
-                    'block rounded-md px-3 py-2 text-base font-medium'
+                      ? 'bg-primary-50 text-primary-500'
+                      : 'text-gray-500 hover:bg-primary-50 hover:text-primary-500',
+                    'block rounded-xl px-3 py-2 text-base font-medium'
                   )}
                   aria-current={item.current ? 'page' : undefined}
                 >

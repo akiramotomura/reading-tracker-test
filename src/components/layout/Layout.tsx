@@ -19,11 +19,11 @@ export default function Layout({ children }: LayoutProps) {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-6">
         {children}
       </main>
-      <footer className="bg-white border-t">
-        <div className="container mx-auto px-4 py-6 text-center text-gray-600">
+      <footer className="bg-white border-t border-gray-100">
+        <div className="container mx-auto px-4 py-6 text-center text-gray-500">
           <p>© {year} 読書記録アプリ</p>
         </div>
       </footer>
