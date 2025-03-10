@@ -1,4 +1,6 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   --background: #f8f9fa;
@@ -12,22 +14,6 @@
   --card: #ffffff;
   --card-foreground: #171717;
   --radius: 1rem;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-primary: var(--primary);
-  --color-primary-light: var(--primary-light);
-  --color-primary-dark: var(--primary-dark);
-  --color-secondary: var(--secondary);
-  --color-accent: var(--accent);
-  --color-border: var(--border);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --border-radius: var(--radius);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -52,62 +38,64 @@ body {
 }
 
 /* カスタムスタイル */
-.btn {
-  @apply px-4 py-2 rounded-full font-medium transition-colors;
-}
+@layer components {
+  .btn {
+    @apply px-4 py-2 rounded-full font-medium transition-colors;
+  }
 
-.btn-primary {
-  @apply bg-primary-500 text-white hover:bg-primary-600;
-}
+  .btn-primary {
+    @apply bg-primary text-white hover:bg-primary-600;
+  }
 
-.btn-secondary {
-  @apply bg-white border border-primary-500 text-primary-500 hover:bg-primary-50;
-}
+  .btn-secondary {
+    @apply bg-white border border-primary text-primary hover:bg-primary-50;
+  }
 
-.btn-ghost {
-  @apply bg-transparent text-primary-500 hover:bg-primary-50;
-}
+  .btn-ghost {
+    @apply bg-transparent text-primary hover:bg-primary-50;
+  }
 
-.card {
-  @apply bg-white rounded-2xl shadow-soft p-4 border border-gray-100;
-}
+  .card {
+    @apply bg-white rounded-2xl shadow-soft p-4 border border-gray-100;
+  }
 
-.input {
-  @apply mt-1 block w-full rounded-xl border border-gray-300 px-3 py-2 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500;
-}
+  .input {
+    @apply mt-1 block w-full rounded-xl border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary;
+  }
 
-.select {
-  @apply mt-1 block w-full rounded-xl border border-gray-300 px-3 py-2 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500;
-}
+  .select {
+    @apply mt-1 block w-full rounded-xl border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary;
+  }
 
-.textarea {
-  @apply mt-1 block w-full rounded-xl border border-gray-300 px-3 py-2 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500;
-}
+  .textarea {
+    @apply mt-1 block w-full rounded-xl border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary;
+  }
 
-.tab {
-  @apply py-2 px-4 text-gray-500 hover:text-gray-700 border-b-2 border-transparent;
-}
+  .tab {
+    @apply py-2 px-4 text-gray-500 hover:text-gray-700 border-b-2 border-transparent;
+  }
 
-.tab-active {
-  @apply border-b-2 border-primary-500 text-primary-500;
-}
+  .tab-active {
+    @apply border-b-2 border-primary text-primary;
+  }
 
-.badge {
-  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800;
-}
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800;
+  }
 
-/* アイコンスタイル */
-.icon-btn {
-  @apply w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-soft text-gray-500 hover:text-primary-500;
-}
+  /* アイコンスタイル */
+  .icon-btn {
+    @apply w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-soft text-gray-500 hover:text-primary;
+  }
 
-/* ナビゲーションスタイル */
-.nav-link {
-  @apply text-gray-500 hover:text-primary-500;
-}
+  /* ナビゲーションスタイル */
+  .nav-link {
+    @apply text-gray-500 hover:text-primary;
+  }
 
-.nav-link-active {
-  @apply text-primary-500;
+  .nav-link-active {
+    @apply text-primary;
+  }
 }
 
 /* モバイル最適化 */

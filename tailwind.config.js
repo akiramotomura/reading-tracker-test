@@ -9,18 +9,20 @@ module.exports = {
     extend: {
       colors: {
         primary: {
+          DEFAULT: '#00af91',
           50: '#e6f7f5',
           100: '#ccefe9',
           200: '#99dfd3',
           300: '#66cfbd',
           400: '#33bfa7',
-          500: '#00af91', // メインのティール/ミント緑色
+          500: '#00af91',
           600: '#008c73',
           700: '#006957',
           800: '#00463a',
           900: '#00231d',
         },
         secondary: {
+          DEFAULT: '#f5f5f5',
           50: '#f5f5f5',
           100: '#ebebeb',
           200: '#d6d6d6',

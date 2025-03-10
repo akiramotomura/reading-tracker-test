@@ -50,7 +50,7 @@ export default function Home() {
         <>
           <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div className="card flex flex-col items-center">
-              <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mb-4 text-primary-500">
+              <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mb-4 text-primary">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-8 w-8"
@@ -79,7 +79,7 @@ export default function Home() {
             </div>
 
             <div className="card flex flex-col items-center">
-              <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mb-4 text-primary-500">
+              <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mb-4 text-primary">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-8 w-8"
@@ -108,7 +108,7 @@ export default function Home() {
             </div>
 
             <div className="card flex flex-col items-center">
-              <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mb-4 text-primary-500">
+              <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mb-4 text-primary">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-8 w-8"
@@ -183,7 +183,7 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="flex">
             <div className="flex-shrink-0 mr-4">
-              <span className="flex items-center justify-center w-10 h-10 bg-primary-100 text-primary-500 rounded-full text-xl font-bold">
+              <span className="flex items-center justify-center w-10 h-10 bg-primary-100 text-primary rounded-full text-xl font-bold">
                 📚
               </span>
             </div>
@@ -197,7 +197,7 @@ export default function Home() {
 
           <div className="flex">
             <div className="flex-shrink-0 mr-4">
-              <span className="flex items-center justify-center w-10 h-10 bg-primary-100 text-primary-500 rounded-full text-xl font-bold">
+              <span className="flex items-center justify-center w-10 h-10 bg-primary-100 text-primary rounded-full text-xl font-bold">
                 ⭐
               </span>
             </div>
@@ -211,7 +211,7 @@ export default function Home() {
 
           <div className="flex">
             <div className="flex-shrink-0 mr-4">
-              <span className="flex items-center justify-center w-10 h-10 bg-primary-100 text-primary-500 rounded-full text-xl font-bold">
+              <span className="flex items-center justify-center w-10 h-10 bg-primary-100 text-primary rounded-full text-xl font-bold">
                 📊
               </span>
             </div>
@@ -225,7 +225,7 @@ export default function Home() {
 
           <div className="flex">
             <div className="flex-shrink-0 mr-4">
-              <span className="flex items-center justify-center w-10 h-10 bg-primary-100 text-primary-500 rounded-full text-xl font-bold">
+              <span className="flex items-center justify-center w-10 h-10 bg-primary-100 text-primary rounded-full text-xl font-bold">
                 🎯
               </span>
             </div>

@@ -35,7 +35,7 @@ export default function Navbar() {
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="relative flex h-16 items-center justify-between">
               <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
-                <Disclosure.Button className="inline-flex items-center justify-center rounded-full p-2 text-gray-500 hover:bg-primary-50 hover:text-primary-500 focus:outline-none">
+                <Disclosure.Button className="inline-flex items-center justify-center rounded-full p-2 text-gray-500 hover:bg-primary-50 hover:text-primary focus:outline-none">
                   <span className="sr-only">メニューを開く</span>
                   {open ? (
                     <XMarkIcon className="block h-6 w-6" aria-hidden="true" />
@@ -46,7 +46,7 @@ export default function Navbar() {
               </div>
               <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
                 <div className="flex flex-shrink-0 items-center">
-                  <Link href="/" className="text-primary-500 text-xl font-bold">
+                  <Link href="/" className="text-primary text-xl font-bold">
                     読書記録
                   </Link>
                 </div>
@@ -58,8 +58,8 @@ export default function Navbar() {
                         href={item.href}
                         className={classNames(
                           item.current
-                            ? 'text-primary-500 border-b-2 border-primary-500'
-                            : 'text-gray-500 hover:text-primary-500 hover:border-b-2 hover:border-primary-300',
+                            ? 'text-primary border-b-2 border-primary'
+                            : 'text-gray-500 hover:text-primary hover:border-b-2 hover:border-primary-300',
                           'px-3 py-2 text-sm font-medium'
                         )}
                         aria-current={item.current ? 'page' : undefined}
@@ -74,9 +74,9 @@ export default function Navbar() {
                 {user ? (
                   <Menu as="div" className="relative ml-3">
                     <div>
-                      <Menu.Button className="flex rounded-full bg-white text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+                      <Menu.Button className="flex rounded-full bg-white text-sm focus:outline-none focus:ring-2 focus:ring-primary">
                         <span className="sr-only">ユーザーメニュー</span>
-                        <div className="h-10 w-10 rounded-full bg-primary-500 flex items-center justify-center text-white shadow-sm">
+                        <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-white shadow-sm">
                           {user.email?.[0].toUpperCase()}
                         </div>
                       </Menu.Button>
@@ -96,7 +96,7 @@ export default function Navbar() {
                             <button
                               onClick={() => logout()}
                               className={classNames(
-                                active ? 'bg-primary-50 text-primary-500' : 'text-gray-700',
+                                active ? 'bg-primary-50 text-primary' : 'text-gray-700',
                                 'block w-full px-4 py-2 text-sm text-left'
                               )}
                             >
@@ -128,8 +128,8 @@ export default function Navbar() {
                   href={item.href}
                   className={classNames(
                     item.current
-                      ? 'bg-primary-50 text-primary-500'
-                      : 'text-gray-500 hover:bg-primary-50 hover:text-primary-500',
+                      ? 'bg-primary-50 text-primary'
+                      : 'text-gray-500 hover:bg-primary-50 hover:text-primary',
                     'block rounded-xl px-3 py-2 text-base font-medium'
                   )}
                   aria-current={item.current ? 'page' : undefined}
