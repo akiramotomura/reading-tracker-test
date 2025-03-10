@@ -17,7 +17,6 @@ const nextConfig: NextConfig = {
   // 環境変数をクライアントに公開する
   env: {
     DEBUG: 'true',
-    NODE_ENV: process.env.NODE_ENV || 'development',
   },
 };
 
