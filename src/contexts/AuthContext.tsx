@@ -3,6 +3,10 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { User, Auth } from 'firebase/auth';
 import { auth } from '../lib/firebase';
+import ErrorBoundary from '@/components/common/ErrorBoundary';
+
+// デバッグモードかどうか
+const DEBUG = process.env.DEBUG === 'true';
 
 // モック認証用の拡張インターフェース
 interface ExtendedAuth extends Auth {
@@ -40,6 +44,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isClient, setIsClient] = useState(false);
+  const [authInitialized, setAuthInitialized] = useState(false);
   const extendedAuth = auth as ExtendedAuth;
 
   // クライアントサイドかどうかを確認
@@ -51,26 +56,50 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (!isClient) return;
 
-    console.log('AuthProvider: initializing');
     let unsubscribe: (() => void) | undefined;
+    let mounted = true;
     
-    try {
-      unsubscribe = auth.onAuthStateChanged((user) => {
-        console.log('Auth state changed:', user?.uid);
-        setUser(user);
+    const initializeAuth = async () => {
+      if (DEBUG) {
+        console.log('AuthProvider: initializing');
+      }
+      
+      try {
+        unsubscribe = auth.onAuthStateChanged(
+          (user) => {
+            if (!mounted) return;
+            
+            if (DEBUG) {
+              console.log('Auth state changed:', user?.uid);
+            }
+            
+            setUser(user);
+            setLoading(false);
+            setAuthInitialized(true);
+          }, 
+          (error) => {
+            if (!mounted) return;
+            
+            console.error('Auth state error:', error);
+            setError('認証状態の監視中にエラーが発生しました');
+            setLoading(false);
+            setAuthInitialized(true);
+          }
+        );
+      } catch (error) {
+        if (!mounted) return;
+        
+        console.error('Error in auth state listener:', error);
+        setError('認証状態の監視の設定中にエラーが発生しました');
         setLoading(false);
-      }, (error) => {
-        console.error('Auth state error:', error);
-        setError('認証状態の監視中にエラーが発生しました');
-        setLoading(false);
-      });
-    } catch (error) {
-      console.error('Error in auth state listener:', error);
-      setError('認証状態の監視の設定中にエラーが発生しました');
-      setLoading(false);
-    }
+        setAuthInitialized(true);
+      }
+    };
+
+    initializeAuth();
 
     return () => {
+      mounted = false;
       if (unsubscribe) {
         unsubscribe();
       }
@@ -88,7 +117,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       if (extendedAuth.signInWithEmailAndPassword) {
         const result = await extendedAuth.signInWithEmailAndPassword(email, password);
-        console.log('Sign in successful:', result.user?.uid);
+        if (DEBUG) {
+          console.log('Sign in successful:', result.user?.uid);
+        }
         setUser(result.user);
       } else {
         throw new Error('Authentication method not available');
@@ -113,7 +144,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       if (extendedAuth.createUserWithEmailAndPassword) {
         const result = await extendedAuth.createUserWithEmailAndPassword(email, password);
-        console.log('Sign up successful:', result.user?.uid);
+        if (DEBUG) {
+          console.log('Sign up successful:', result.user?.uid);
+        }
         setUser(result.user);
       } else {
         throw new Error('Authentication method not available');
@@ -137,7 +170,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setError(null);
       
       await auth.signOut();
-      console.log('Sign out successful');
+      if (DEBUG) {
+        console.log('Sign out successful');
+      }
       setUser(null);
     } catch (error) {
       console.error('Sign out error:', error);
@@ -150,16 +185,30 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const value = {
     user,
-    loading,
+    loading: loading || !authInitialized,
     error,
     signIn,
     signUp,
     logout
   };
 
+  // ローディング中のフォールバックUI
+  if (isClient && loading && !authInitialized) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600">読み込み中...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
+    <ErrorBoundary>
+      <AuthContext.Provider value={value}>
+        {children}
+      </AuthContext.Provider>
+    </ErrorBoundary>
   );
 };

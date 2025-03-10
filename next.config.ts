@@ -10,6 +10,15 @@ const nextConfig: NextConfig = {
     // 型チェックエラーがあってもビルドを続行する
     ignoreBuildErrors: true,
   },
+  // 詳細なエラーメッセージを表示する
+  reactStrictMode: true,
+  // 本番環境でもソースマップを生成する
+  productionBrowserSourceMaps: true,
+  // 環境変数をクライアントに公開する
+  env: {
+    DEBUG: 'true',
+    NODE_ENV: process.env.NODE_ENV || 'development',
+  },
 };
 
 export default nextConfig;

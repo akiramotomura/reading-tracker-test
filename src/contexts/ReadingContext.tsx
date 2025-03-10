@@ -4,6 +4,10 @@ import { createContext, useContext, useState, useEffect } from 'react';
 import { Book, ReadingRecord } from '@/types';
 import { useAuth } from './AuthContext';
 import { mockDb } from '@/lib/mockDb';
+import ErrorBoundary from '@/components/common/ErrorBoundary';
+
+// デバッグモードかどうか
+const DEBUG = process.env.DEBUG === 'true';
 
 interface ReadingContextType {
   books: Book[];
@@ -43,12 +47,13 @@ export const useReading = () => {
 };
 
 export const ReadingProvider = ({ children }: { children: React.ReactNode }) => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [books, setBooks] = useState<Book[]>([]);
   const [readingRecords, setReadingRecords] = useState<ReadingRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isClient, setIsClient] = useState(false);
+  const [dataInitialized, setDataInitialized] = useState(false);
 
   // クライアントサイドかどうかを確認
   useEffect(() => {
@@ -57,9 +62,8 @@ export const ReadingProvider = ({ children }: { children: React.ReactNode }) => 
 
   // 初期データの読み込み
   useEffect(() => {
-    if (!isClient) return;
+    if (!isClient || authLoading) return;
     
-    console.log('ReadingProvider: initializing with user', user?.uid);
     let isMounted = true;
     let unsubscribeBooks: (() => void) | undefined;
     let unsubscribeRecords: (() => void) | undefined;
@@ -72,7 +76,9 @@ export const ReadingProvider = ({ children }: { children: React.ReactNode }) => 
       
       try {
         if (user) {
-          console.log('Loading data for user:', user.uid);
+          if (DEBUG) {
+            console.log('ReadingProvider: Loading data for user:', user.uid);
+          }
           
           // モックデータベースからデータを取得
           const userBooks = await mockDb.getBooks(user.uid);
@@ -83,10 +89,20 @@ export const ReadingProvider = ({ children }: { children: React.ReactNode }) => 
           
           setBooks(userBooks);
           setReadingRecords(userRecords);
-          console.log('Loaded data from mock database:', { 
-            books: userBooks.length, 
-            readingRecords: userRecords.length 
-          });
+          
+          if (DEBUG) {
+            console.log('Loaded data from mock database:', { 
+              books: userBooks.length, 
+              readingRecords: userRecords.length 
+            });
+          }
+          
+          setDataInitialized(true);
+        } else {
+          // ユーザーがログアウトした場合はデータをクリア
+          setBooks([]);
+          setReadingRecords([]);
+          setDataInitialized(true);
         }
       } catch (error) {
         console.error('Failed to load reading data:', error);
@@ -100,7 +116,7 @@ export const ReadingProvider = ({ children }: { children: React.ReactNode }) => 
       }
     };
 
-    const setupListeners = () => {
+    const setupListeners = async () => {
       if (!user || !isMounted) return;
       
       try {
@@ -110,7 +126,10 @@ export const ReadingProvider = ({ children }: { children: React.ReactNode }) => 
           
           const userBooks = updatedBooks.filter(book => book.userId === user.uid);
           setBooks(userBooks);
-          console.log('Books updated:', userBooks.length);
+          
+          if (DEBUG) {
+            console.log('Books updated:', userBooks.length);
+          }
         });
         
         unsubscribeRecords = mockDb.addListener('readingRecords', (updatedRecords: ReadingRecord[]) => {
@@ -118,7 +137,10 @@ export const ReadingProvider = ({ children }: { children: React.ReactNode }) => 
           
           const userRecords = updatedRecords.filter(record => record.userId === user.uid);
           setReadingRecords(userRecords);
-          console.log('Reading records updated:', userRecords.length);
+          
+          if (DEBUG) {
+            console.log('Reading records updated:', userRecords.length);
+          }
         });
       } catch (error) {
         console.error('Failed to set up data listeners:', error);
@@ -128,18 +150,20 @@ export const ReadingProvider = ({ children }: { children: React.ReactNode }) => 
       }
     };
 
+    // ユーザーの状態に応じてデータを読み込む
     if (user) {
       loadData().then(() => {
         if (isMounted) {
           setupListeners();
         }
       });
-    } else {
+    } else if (!authLoading) {
       // ユーザーがログアウトした場合はデータをクリア
       setBooks([]);
       setReadingRecords([]);
       setLoading(false);
       setError(null);
+      setDataInitialized(true);
     }
     
     return () => {
@@ -147,7 +171,7 @@ export const ReadingProvider = ({ children }: { children: React.ReactNode }) => 
       if (unsubscribeBooks) unsubscribeBooks();
       if (unsubscribeRecords) unsubscribeRecords();
     };
-  }, [user, isClient]);
+  }, [user, authLoading, isClient]);
 
   // 本を追加
   const addBook = async (bookData: Omit<Book, 'id' | 'userId' | 'createdAt' | 'updatedAt'>): Promise<Book> => {
@@ -266,13 +290,27 @@ export const ReadingProvider = ({ children }: { children: React.ReactNode }) => 
     deleteReadingRecord,
     getBookById,
     getReadingRecordsByBookId,
-    loading,
+    loading: loading || authLoading || !dataInitialized,
     error
   };
 
+  // ローディング中のフォールバックUI
+  if (isClient && (loading || authLoading) && !dataInitialized) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600">データを読み込み中...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <ReadingContext.Provider value={value}>
-      {children}
-    </ReadingContext.Provider>
+    <ErrorBoundary>
+      <ReadingContext.Provider value={value}>
+        {children}
+      </ReadingContext.Provider>
+    </ErrorBoundary>
   );
 };

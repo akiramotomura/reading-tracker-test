@@ -3,38 +3,90 @@
 import { mockDb, convertToFirebaseUser } from './mockDb';
 import { User } from 'firebase/auth';
 
+// デバッグモードかどうか
+const DEBUG = process.env.DEBUG === 'true';
+
 // モック認証クラス
 export class MockAuth {
   private listeners: ((user: User | null) => void)[] = [];
+  private isClient: boolean;
+
+  constructor() {
+    this.isClient = typeof window !== 'undefined';
+    if (DEBUG && this.isClient) {
+      console.log('MockAuth: constructor called, isClient:', this.isClient);
+    }
+  }
 
   get currentUser() {
+    if (!this.isClient) {
+      return null;
+    }
     const mockUser = mockDb.getCurrentUser();
     return convertToFirebaseUser(mockUser) as User | null;
   }
 
-  onAuthStateChanged(callback: (user: User | null) => void) {
-    // リスナーを登録
-    this.listeners.push(callback);
+  onAuthStateChanged(callback: (user: User | null) => void, onError?: (error: Error) => void) {
+    if (!this.isClient) {
+      // サーバーサイドでは空の関数を返す
+      if (DEBUG) {
+        console.log('MockAuth: onAuthStateChanged called on server side, returning dummy unsubscribe');
+      }
+      return () => {};
+    }
     
-    // 初期状態を通知
-    const currentUser = this.currentUser;
-    callback(currentUser);
-    
-    // mockDbのauthリスナーを登録
-    const unsubscribe = mockDb.addListener('auth', () => {
-      const user = convertToFirebaseUser(mockDb.getCurrentUser()) as User | null;
-      callback(user);
-    });
-    
-    // クリーンアップ関数を返す
-    return () => {
-      this.listeners = this.listeners.filter(listener => listener !== callback);
-      unsubscribe();
-    };
+    try {
+      // リスナーを登録
+      this.listeners.push(callback);
+      
+      // 初期状態を通知（非同期で）
+      setTimeout(() => {
+        try {
+          const currentUser = this.currentUser;
+          callback(currentUser);
+        } catch (error) {
+          console.error('Error in initial auth state notification:', error);
+          if (onError) {
+            onError(error instanceof Error ? error : new Error(String(error)));
+          }
+        }
+      }, 0);
+      
+      // mockDbのauthリスナーを登録
+      const unsubscribe = mockDb.addListener('auth', () => {
+        try {
+          const user = convertToFirebaseUser(mockDb.getCurrentUser()) as User | null;
+          callback(user);
+        } catch (error) {
+          console.error('Error in auth state listener:', error);
+          if (onError) {
+            onError(error instanceof Error ? error : new Error(String(error)));
+          }
+        }
+      });
+      
+      // クリーンアップ関数を返す
+      return () => {
+        this.listeners = this.listeners.filter(listener => listener !== callback);
+        unsubscribe();
+      };
+    } catch (error) {
+      console.error('Error setting up auth state listener:', error);
+      if (onError) {
+        onError(error instanceof Error ? error : new Error(String(error)));
+      }
+      return () => {};
+    }
   }
 
   async signInWithEmailAndPassword(email: string, password: string) {
-    console.log('Mock sign in:', { email });
+    if (!this.isClient) {
+      throw new Error('Cannot sign in on server side');
+    }
+    
+    if (DEBUG) {
+      console.log('Mock sign in:', { email });
+    }
     
     try {
       const mockUser = await mockDb.signIn(email, password);
@@ -52,7 +104,13 @@ export class MockAuth {
   }
 
   async createUserWithEmailAndPassword(email: string, password: string) {
-    console.log('Mock create user:', { email });
+    if (!this.isClient) {
+      throw new Error('Cannot sign up on server side');
+    }
+    
+    if (DEBUG) {
+      console.log('Mock create user:', { email });
+    }
     
     try {
       const mockUser = await mockDb.signUp(email, password);
@@ -70,7 +128,13 @@ export class MockAuth {
   }
 
   async signOut() {
-    console.log('Mock sign out');
+    if (!this.isClient) {
+      throw new Error('Cannot sign out on server side');
+    }
+    
+    if (DEBUG) {
+      console.log('Mock sign out');
+    }
     
     try {
       await mockDb.signOut();
