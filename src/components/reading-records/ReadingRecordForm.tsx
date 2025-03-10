@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useReading } from '@/contexts/ReadingContext';
-import { Book, ReadingRecord } from '@/types';
+// 未使用の型インポートを削除
 
 interface ReadingRecordFormProps {
   bookId?: string;
@@ -14,13 +14,23 @@ export default function ReadingRecordForm({ bookId, recordId, onComplete }: Read
   const { books, readingRecords, addReadingRecord, updateReadingRecord, getBookById } = useReading();
   
   const [selectedBookId, setSelectedBookId] = useState(bookId || '');
-  const [readDate, setReadDate] = useState(new Date().toISOString().split('T')[0]);
+  // 初期値として固定の日付文字列を使用
+  const [readDate, setReadDate] = useState('2025-01-01');
   const [readCount, setReadCount] = useState(1);
   const [favoriteRating, setFavoriteRating] = useState(3);
   const [childReaction, setChildReaction] = useState('');
   const [notes, setNotes] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // クライアントサイドでのみ日付を設定
+  useEffect(() => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    setReadDate(`${year}-${month}-${day}`);
+  }, []);
 
   // 編集モードの場合、既存のデータを読み込む
   useEffect(() => {
@@ -68,7 +78,14 @@ export default function ReadingRecordForm({ bookId, recordId, onComplete }: Read
       if (!bookId) {
         setSelectedBookId('');
       }
-      setReadDate(new Date().toISOString().split('T')[0]);
+      
+      // クライアントサイドで現在の日付を取得して設定
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, '0');
+      const day = String(today.getDate()).padStart(2, '0');
+      setReadDate(`${year}-${month}-${day}`);
+      
       setReadCount(1);
       setFavoriteRating(3);
       setChildReaction('');
@@ -85,8 +102,7 @@ export default function ReadingRecordForm({ bookId, recordId, onComplete }: Read
     }
   };
 
-  // 選択された本の情報を取得
-  const selectedBook = selectedBookId ? getBookById(selectedBookId) : null;
+  // 未使用の変数を削除
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm">

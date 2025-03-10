@@ -1,16 +1,22 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
-import { useReading } from '@/contexts/ReadingContext';
+// 未使用のインポートを削除
 import ReadingRecordList from '@/components/reading-records/ReadingRecordList';
 import BookList from '@/components/books/BookList';
 
 export default function Home() {
   const { user } = useAuth();
-  // booksとreadingRecordsは直接使用されていないため削除
   const [activeTab, setActiveTab] = useState<'recent' | 'books'>('recent');
+  // 初期値として2025を設定し、クライアントサイドでのみ現在の年に更新
+  const [year, setYear] = useState(2025);
+  
+  useEffect(() => {
+    // クライアントサイドでのみ実行
+    setYear(new Date().getFullYear());
+  }, []);
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -235,7 +241,7 @@ export default function Home() {
 
       <section className="text-center mb-8">
         <p className="text-gray-600">
-          © {new Date().getFullYear()} 読書記録アプリ
+          © {year} 読書記録アプリ
         </p>
       </section>
     </div>
