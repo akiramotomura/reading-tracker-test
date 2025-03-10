@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { FirebaseError } from 'firebase/app';
+import Link from 'next/link';
 
 export default function SignUpPage() {
   const [email, setEmail] = useState('');
@@ -90,14 +91,14 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-16rem)] flex items-center justify-center">
-      <div className="bg-white p-8 rounded-lg shadow-sm w-full max-w-md">
-        <h1 className="text-2xl font-bold text-gray-900 text-center mb-6">
+    <div className="min-h-[calc(100vh-16rem)] flex items-center justify-center px-4">
+      <div className="bg-white p-8 rounded-2xl shadow-card w-full max-w-md">
+        <h1 className="text-2xl font-bold text-gray-800 text-center mb-6">
           新規登録
         </h1>
 
         {error && (
-          <div className="bg-red-50 text-red-700 p-4 rounded-md mb-6">
+          <div className="bg-red-50 text-red-700 p-4 rounded-xl mb-6">
             {error}
           </div>
         )}
@@ -116,7 +117,7 @@ export default function SignUpPage() {
               required
               value={familyName}
               onChange={(e) => setFamilyName(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="input"
               placeholder="例：山田家"
               autoComplete="family-name"
             />
@@ -135,7 +136,8 @@ export default function SignUpPage() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="input"
+              placeholder="example@mail.com"
               autoComplete="email"
             />
           </div>
@@ -153,8 +155,9 @@ export default function SignUpPage() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="input"
               minLength={6}
+              placeholder="••••••••"
               autoComplete="new-password"
             />
             <p className="mt-1 text-sm text-gray-500">
@@ -175,8 +178,9 @@ export default function SignUpPage() {
               required
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="input"
               minLength={6}
+              placeholder="••••••••"
               autoComplete="new-password"
             />
           </div>
@@ -184,21 +188,21 @@ export default function SignUpPage() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+            className="btn btn-primary w-full py-2.5"
           >
             {isLoading ? '作成中...' : 'アカウントを作成'}
           </button>
         </form>
 
-        <div className="mt-6 text-center">
+        <div className="mt-8 text-center">
           <p className="text-sm text-gray-600">
             すでにアカウントをお持ちの方は{' '}
-            <a
+            <Link
               href="/auth/login"
-              className="font-medium text-indigo-600 hover:text-indigo-500"
+              className="font-medium text-primary-600 hover:text-primary-500"
             >
               ログイン
-            </a>
+            </Link>
           </p>
         </div>
       </div>

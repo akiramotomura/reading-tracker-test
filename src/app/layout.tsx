@@ -5,6 +5,7 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { ReadingProvider } from '@/contexts/ReadingContext';
 import Layout from '@/components/layout/Layout';
 import ClientErrorBoundary from '@/components/common/ClientErrorBoundary';
+import AuthGuard from '@/components/auth/AuthGuard';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -24,7 +25,9 @@ export default function RootLayout({
         <ClientErrorBoundary>
           <AuthProvider>
             <ReadingProvider>
-              <Layout>{children}</Layout>
+              <AuthGuard>
+                <Layout>{children}</Layout>
+              </AuthGuard>
             </ReadingProvider>
           </AuthProvider>
         </ClientErrorBoundary>
