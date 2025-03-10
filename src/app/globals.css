@@ -44,15 +44,15 @@ body {
   }
 
   .btn-primary {
-    @apply bg-primary text-white hover:bg-primary-600;
+    @apply bg-primary-500 text-white hover:bg-primary-600;
   }
 
   .btn-secondary {
-    @apply bg-white border border-primary text-primary hover:bg-primary-50;
+    @apply bg-white border border-primary-500 text-primary-500 hover:bg-primary-50;
   }
 
   .btn-ghost {
-    @apply bg-transparent text-primary hover:bg-primary-50;
+    @apply bg-transparent text-primary-500 hover:bg-primary-50;
   }
 
   .card {
@@ -60,15 +60,15 @@ body {
   }
 
   .input {
-    @apply mt-1 block w-full rounded-xl border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary;
+    @apply mt-1 block w-full rounded-xl border border-gray-300 px-3 py-2 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500;
   }
 
   .select {
-    @apply mt-1 block w-full rounded-xl border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary;
+    @apply mt-1 block w-full rounded-xl border border-gray-300 px-3 py-2 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500;
   }
 
   .textarea {
-    @apply mt-1 block w-full rounded-xl border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary;
+    @apply mt-1 block w-full rounded-xl border border-gray-300 px-3 py-2 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500;
   }
 
   .tab {
@@ -76,7 +76,7 @@ body {
   }
 
   .tab-active {
-    @apply border-b-2 border-primary text-primary;
+    @apply border-b-2 border-primary-500 text-primary-500;
   }
 
   .badge {
@@ -85,16 +85,16 @@ body {
 
   /* アイコンスタイル */
   .icon-btn {
-    @apply w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-soft text-gray-500 hover:text-primary;
+    @apply w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-soft text-gray-500 hover:text-primary-500;
   }
 
   /* ナビゲーションスタイル */
   .nav-link {
-    @apply text-gray-500 hover:text-primary;
+    @apply text-gray-500 hover:text-primary-500;
   }
 
   .nav-link-active {
-    @apply text-primary;
+    @apply text-primary-500;
   }
 }
 
