@@ -7,9 +7,9 @@ import BookList from '@/components/books/BookList';
 
 export default function BooksPage() {
   const router = useRouter();
-  const { user, loading } = useAuth();
+  const { loading } = useAuth();
 
-  // 認証状態の確認
+  // ローディング中の表示
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[calc(100vh-16rem)]">
@@ -18,15 +18,10 @@ export default function BooksPage() {
     );
   }
 
-  if (!user) {
-    router.push('/auth/login');
-    return null;
-  }
-
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">本の管理</h1>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-xl sm:text-2xl font-bold">えほん</h1>
         <Link
           href="/books/new"
           className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
@@ -35,7 +30,7 @@ export default function BooksPage() {
         </Link>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+      <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 mb-8">
         <BookList />
       </div>
     </div>
