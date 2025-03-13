@@ -46,13 +46,13 @@ export default function Navbar() {
   return (
     <>
       {/* デスクトップ用トップナビゲーション */}
-      <div className="hidden sm:block bg-surface elevation-1 sticky top-0 z-20">
+      <div className="hidden sm:block bg-surface-container-low sticky top-0 z-20 elevation-2">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="relative flex h-16 items-center justify-between">
             <div className="flex flex-shrink-0 items-center">
               <button 
                 onClick={() => handleNavigation('/')}
-                className="text-primary text-xl font-bold md-ripple bg-transparent"
+                className="text-primary text-xl font-bold md-state-layer bg-transparent"
               >
                 YOMITAI
               </button>
@@ -64,9 +64,9 @@ export default function Navbar() {
                   onClick={() => handleNavigation(item.href)}
                   className={classNames(
                     item.current
-                      ? 'md-nav-item-active'
-                      : 'md-nav-item',
-                    'md-ripple bg-transparent'
+                      ? 'text-primary'
+                      : 'text-on-surface-variant',
+                    'px-4 py-2 text-sm font-medium md-state-layer bg-transparent rounded-full'
                   )}
                   aria-current={item.current ? 'page' : undefined}
                 >
@@ -79,7 +79,7 @@ export default function Navbar() {
       </div>
 
       {/* モバイル用ボトムタブナビゲーション */}
-      <div className="sm:hidden fixed bottom-0 left-0 right-0 bg-surface elevation-2 z-50">
+      <div className="sm:hidden fixed bottom-0 left-0 right-0 bg-surface-container elevation-2 z-50">
         <div className="grid grid-cols-2">
           {updatedNavigation.map((item) => {
             const Icon = item.icon;
@@ -88,10 +88,10 @@ export default function Navbar() {
                 key={item.name}
                 onClick={() => handleNavigation(item.href)}
                 className={classNames(
+                  'flex flex-col items-center justify-center py-3 bg-transparent w-full md-state-layer',
                   item.current
                     ? 'text-primary'
-                    : 'text-neutral-600',
-                  'flex flex-col items-center justify-center py-3 bg-transparent w-full md-ripple'
+                    : 'text-on-surface-variant'
                 )}
               >
                 <Icon className="h-6 w-6" aria-hidden="true" />
@@ -103,11 +103,11 @@ export default function Navbar() {
       </div>
 
       {/* モバイル用ヘッダー（タイトルのみ） */}
-      <div className="sm:hidden bg-surface elevation-1 sticky top-0 z-20">
+      <div className="sm:hidden bg-surface-container-low elevation-1 sticky top-0 z-20">
         <div className="px-4 py-3 flex items-center justify-center">
           <button 
             onClick={() => handleNavigation('/')}
-            className="text-primary text-lg font-bold bg-transparent md-ripple"
+            className="text-primary text-lg font-bold bg-transparent md-state-layer"
           >
             YOMITAI
           </button>

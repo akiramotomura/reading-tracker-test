@@ -93,7 +93,7 @@ export default function BookList({ limit }: BookListProps) {
 
   if (books.length === 0) {
     return (
-      <div className="text-center py-8 text-neutral-500 text-sm sm:text-base">
+      <div className="text-center py-8 text-on-surface-variant text-sm sm:text-base">
         本はまだ登録されていません
       </div>
     );
@@ -105,26 +105,26 @@ export default function BookList({ limit }: BookListProps) {
       <div className="animate-fadeIn">
         <button 
           onClick={() => setSelectedBook(null)}
-          className="flex items-center text-neutral-600 mb-4 px-2 py-1 rounded-lg hover:bg-neutral-100 md-ripple bg-transparent"
+          className="flex items-center text-on-surface-variant mb-4 px-3 py-2 rounded-full hover:bg-surface-variant md-state-layer bg-transparent"
         >
           <ArrowLeftIcon className="h-4 w-4 mr-1" />
           <span>一覧に戻る</span>
         </button>
         
-        <div className="bg-surface rounded-lg elevation-1 p-4 sm:p-6 animate-scaleIn">
+        <div className="bg-surface-container-low rounded-md elevation-1 p-4 sm:p-6 animate-scaleIn">
           <div className="flex flex-col sm:flex-row gap-6">
             <div className="w-full sm:w-1/3">
               {selectedBook.coverImage ? (
                 <img
                   src={selectedBook.coverImage}
                   alt={`${selectedBook.title}の表紙`}
-                  className="w-full aspect-[3/4] object-cover rounded-lg elevation-1"
+                  className="w-full aspect-[3/4] object-cover rounded-md elevation-1"
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
                     const parent = e.currentTarget.parentElement;
                     if (parent) {
                       const placeholder = document.createElement('div');
-                      placeholder.className = 'w-full aspect-[3/4] bg-neutral-200 rounded-lg flex flex-col items-center justify-center text-neutral-400 p-4';
+                      placeholder.className = 'w-full aspect-[3/4] bg-surface-variant rounded-md flex flex-col items-center justify-center text-on-surface-variant p-4';
                       placeholder.innerHTML = `
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
@@ -136,7 +136,7 @@ export default function BookList({ limit }: BookListProps) {
                   }}
                 />
               ) : (
-                <div className="w-full aspect-[3/4] bg-neutral-200 rounded-lg flex flex-col items-center justify-center text-neutral-400 p-4">
+                <div className="w-full aspect-[3/4] bg-surface-variant rounded-md flex flex-col items-center justify-center text-on-surface-variant p-4">
                   <BookOpenIcon className="h-16 w-16 mb-2" />
                   <div className="text-sm text-center px-2">{selectedBook.title}</div>
                 </div>
@@ -144,19 +144,19 @@ export default function BookList({ limit }: BookListProps) {
             </div>
             
             <div className="flex-1">
-              <h2 className="text-xl font-bold mb-2">{selectedBook.title}</h2>
+              <h2 className="text-xl font-bold mb-2 text-on-surface">{selectedBook.title}</h2>
               
               <div className="space-y-2 mb-6">
-                <p className="text-neutral-700">
+                <p className="text-on-surface">
                   <span className="font-medium">著者:</span> {selectedBook.author}
                 </p>
                 {selectedBook.publisher && (
-                  <p className="text-neutral-700">
+                  <p className="text-on-surface">
                     <span className="font-medium">出版社:</span> {selectedBook.publisher}
                   </p>
                 )}
                 {selectedBook.publishedYear && (
-                  <p className="text-neutral-700">
+                  <p className="text-on-surface">
                     <span className="font-medium">出版年:</span> {selectedBook.publishedYear}
                   </p>
                 )}
@@ -165,19 +165,19 @@ export default function BookList({ limit }: BookListProps) {
               <div className="flex flex-wrap gap-2">
                 <button
                   onClick={(e) => addReadingRecord(selectedBook.id, e)}
-                  className="md-btn md-btn-primary md-ripple"
+                  className="md-btn md-btn-filled md-state-layer"
                 >
                   読書記録を追加
                 </button>
                 <button
                   onClick={(e) => editBook(selectedBook.id, e)}
-                  className="md-btn md-btn-outline md-ripple"
+                  className="md-btn md-btn-outlined md-state-layer"
                 >
                   編集
                 </button>
                 <button
                   onClick={(e) => handleDelete(selectedBook.id, e)}
-                  className="md-btn md-btn-text text-error md-ripple"
+                  className="md-btn md-btn-text md-state-layer text-error"
                   disabled={isDeleting}
                 >
                   削除
@@ -195,7 +195,7 @@ export default function BookList({ limit }: BookListProps) {
       {/* 著者フィルター */}
       {authors.length > 0 && (
         <div className="mb-4">
-          <label htmlFor="author-filter" className="block text-sm font-medium text-neutral-700 mb-2">
+          <label htmlFor="author-filter" className="block text-sm font-medium text-on-surface mb-2">
             著者でフィルター
           </label>
           <select
@@ -218,21 +218,21 @@ export default function BookList({ limit }: BookListProps) {
           <div
             key={book.id}
             onClick={(e) => navigateToBookDetail(book, e)}
-            className="bg-surface rounded-lg elevation-1 hover:elevation-2 border border-neutral-100 transition-all relative cursor-pointer active:scale-[0.98] md-ripple"
+            className="bg-surface-container-low rounded-md elevation-1 hover:elevation-2 transition-all relative cursor-pointer active:scale-[0.98] md-state-layer"
           >
             <div className="aspect-[3/4] relative">
               {book.coverImage ? (
                 <img
                   src={book.coverImage}
                   alt={`${book.title}の表紙`}
-                  className="w-full h-full object-cover rounded-t-lg"
+                  className="w-full h-full object-cover rounded-t-md"
                   onError={(e) => {
                     // 画像読み込みエラー時は、プレースホルダーDIVを表示
                     e.currentTarget.style.display = 'none';
                     const parent = e.currentTarget.parentElement;
                     if (parent) {
                       const placeholder = document.createElement('div');
-                      placeholder.className = 'w-full h-full bg-neutral-200 rounded-t-lg flex flex-col items-center justify-center text-neutral-400 p-4';
+                      placeholder.className = 'w-full h-full bg-surface-variant rounded-t-md flex flex-col items-center justify-center text-on-surface-variant p-4';
                       placeholder.innerHTML = `
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
@@ -244,7 +244,7 @@ export default function BookList({ limit }: BookListProps) {
                   }}
                 />
               ) : (
-                <div className="w-full h-full bg-neutral-200 rounded-t-lg flex flex-col items-center justify-center text-neutral-400 p-4">
+                <div className="w-full h-full bg-surface-variant rounded-t-md flex flex-col items-center justify-center text-on-surface-variant p-4">
                   <BookOpenIcon className="h-12 w-12 mb-2" />
                   <div className="text-xs text-center line-clamp-2 px-2">{book.title}</div>
                 </div>
@@ -255,20 +255,20 @@ export default function BookList({ limit }: BookListProps) {
             <div className="absolute top-2 right-2 z-20">
               <Menu as="div" className="relative inline-block text-left">
                 <Menu.Button 
-                  className="bg-surface rounded-full p-2 elevation-1 hover:bg-neutral-100 md-ripple"
+                  className="bg-surface-container-highest rounded-full p-2 elevation-1 hover:bg-surface-container md-state-layer"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <EllipsisVerticalIcon className="h-4 w-4 text-neutral-500" />
+                  <EllipsisVerticalIcon className="h-4 w-4 text-on-surface-variant" />
                 </Menu.Button>
-                <Menu.Items className="absolute right-0 mt-2 w-40 origin-top-right rounded-md bg-surface elevation-2 focus:outline-none z-30">
+                <Menu.Items className="absolute right-0 mt-2 w-40 origin-top-right rounded-md bg-surface-container-high elevation-2 focus:outline-none z-30">
                   <div className="py-1">
                     <Menu.Item>
                       {({ active }) => (
                         <button
                           onClick={(e) => addReadingRecord(book.id, e)}
                           className={`${
-                            active ? 'bg-neutral-100 text-neutral-900' : 'text-neutral-700'
-                          } block w-full text-left px-4 py-2 text-xs md-ripple`}
+                            active ? 'bg-surface-container-highest text-on-surface' : 'text-on-surface-variant'
+                          } block w-full text-left px-4 py-2 text-xs md-state-layer`}
                         >
                           読書記録を追加
                         </button>
@@ -279,8 +279,8 @@ export default function BookList({ limit }: BookListProps) {
                         <button
                           onClick={(e) => editBook(book.id, e)}
                           className={`${
-                            active ? 'bg-neutral-100 text-neutral-900' : 'text-neutral-700'
-                          } block w-full text-left px-4 py-2 text-xs md-ripple`}
+                            active ? 'bg-surface-container-highest text-on-surface' : 'text-on-surface-variant'
+                          } block w-full text-left px-4 py-2 text-xs md-state-layer`}
                         >
                           編集
                         </button>
@@ -292,8 +292,8 @@ export default function BookList({ limit }: BookListProps) {
                           onClick={(e) => handleDelete(book.id, e)}
                           disabled={isDeleting}
                           className={`${
-                            active ? 'bg-error-50 text-error-700' : 'text-error'
-                          } block w-full text-left px-4 py-2 text-xs disabled:opacity-50 md-ripple`}
+                            active ? 'bg-error-container text-on-error-container' : 'text-error'
+                          } block w-full text-left px-4 py-2 text-xs disabled:opacity-50 md-state-layer`}
                         >
                           削除
                         </button>
@@ -306,10 +306,10 @@ export default function BookList({ limit }: BookListProps) {
 
             {/* 本のタイトル（モバイルでは非表示） */}
             <div className="p-2 hidden sm:block">
-              <h3 className="font-medium text-sm line-clamp-1">
+              <h3 className="font-medium text-sm line-clamp-1 text-on-surface">
                 {book.title}
               </h3>
-              <p className="text-xs text-neutral-600 line-clamp-1">{book.author}</p>
+              <p className="text-xs text-on-surface-variant line-clamp-1">{book.author}</p>
             </div>
           </div>
         ))}
@@ -319,7 +319,7 @@ export default function BookList({ limit }: BookListProps) {
         <div className="text-center mt-4">
           <button
             onClick={() => router.push('/books')}
-            className="md-btn md-btn-text md-ripple"
+            className="md-btn md-btn-text md-state-layer"
           >
             すべての本を見る
           </button>

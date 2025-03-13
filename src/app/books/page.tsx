@@ -84,17 +84,17 @@ export default function BooksPage() {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-xl sm:text-2xl font-bold">えほん</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-on-surface">えほん</h1>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="md-btn md-btn-primary md-ripple flex items-center"
+          className="md-btn md-btn-filled md-state-layer flex items-center"
         >
           <PlusIcon className="h-5 w-5 mr-1" />
           <span>新しい本を追加</span>
         </button>
       </div>
 
-      <div className="bg-surface rounded-lg elevation-1 p-4 sm:p-6 mb-8 animate-fadeIn">
+      <div className="bg-surface-container rounded-md elevation-1 p-4 sm:p-6 mb-8 animate-fadeIn">
         <BookList />
       </div>
 
@@ -104,17 +104,17 @@ export default function BooksPage() {
         onClose={() => setIsModalOpen(false)}
         className="relative z-50"
       >
-        <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+        <div className="fixed inset-0 bg-scrim/30" aria-hidden="true" />
         
         <div className="fixed inset-0 flex items-center justify-center p-4">
-          <Dialog.Panel className="w-full max-w-md rounded-lg bg-surface elevation-3 p-6 animate-scaleIn">
+          <Dialog.Panel className="w-full max-w-md rounded-lg bg-surface-container-high elevation-3 p-6 animate-scaleIn">
             <div className="flex justify-between items-center mb-4">
-              <Dialog.Title className="text-lg font-medium">
+              <Dialog.Title className="text-lg font-medium text-on-surface">
                 新しい本を追加
               </Dialog.Title>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="text-neutral-400 hover:text-neutral-500 md-ripple bg-transparent"
+                className="text-on-surface-variant hover:text-on-surface md-state-layer bg-transparent rounded-full p-2"
               >
                 <XMarkIcon className="h-6 w-6" />
               </button>
@@ -123,7 +123,7 @@ export default function BooksPage() {
             <form onSubmit={handleAddBook}>
               <div className="space-y-4">
                 <div>
-                  <label htmlFor="title" className="block text-sm font-medium text-neutral-700 mb-1">
+                  <label htmlFor="title" className="block text-sm font-medium text-on-surface mb-1">
                     タイトル <span className="text-error">*</span>
                   </label>
                   <input
@@ -133,12 +133,12 @@ export default function BooksPage() {
                     value={newBook.title}
                     onChange={handleInputChange}
                     required
-                    className="md-input"
+                    className="md-input-outlined"
                   />
                 </div>
                 
                 <div>
-                  <label htmlFor="author" className="block text-sm font-medium text-neutral-700 mb-1">
+                  <label htmlFor="author" className="block text-sm font-medium text-on-surface mb-1">
                     著者 <span className="text-error">*</span>
                   </label>
                   <input
@@ -148,12 +148,12 @@ export default function BooksPage() {
                     value={newBook.author}
                     onChange={handleInputChange}
                     required
-                    className="md-input"
+                    className="md-input-outlined"
                   />
                 </div>
                 
                 <div>
-                  <label htmlFor="publisher" className="block text-sm font-medium text-neutral-700 mb-1">
+                  <label htmlFor="publisher" className="block text-sm font-medium text-on-surface mb-1">
                     出版社
                   </label>
                   <input
@@ -162,12 +162,12 @@ export default function BooksPage() {
                     name="publisher"
                     value={newBook.publisher}
                     onChange={handleInputChange}
-                    className="md-input"
+                    className="md-input-outlined"
                   />
                 </div>
                 
                 <div>
-                  <label htmlFor="publishedYear" className="block text-sm font-medium text-neutral-700 mb-1">
+                  <label htmlFor="publishedYear" className="block text-sm font-medium text-on-surface mb-1">
                     出版年
                   </label>
                   <input
@@ -178,12 +178,12 @@ export default function BooksPage() {
                     onChange={handleInputChange}
                     min="1900"
                     max={new Date().getFullYear()}
-                    className="md-input"
+                    className="md-input-outlined"
                   />
                 </div>
                 
                 <div>
-                  <label htmlFor="coverImage" className="block text-sm font-medium text-neutral-700 mb-1">
+                  <label htmlFor="coverImage" className="block text-sm font-medium text-on-surface mb-1">
                     表紙画像URL
                   </label>
                   <input
@@ -192,7 +192,7 @@ export default function BooksPage() {
                     name="coverImage"
                     value={newBook.coverImage}
                     onChange={handleInputChange}
-                    className="md-input"
+                    className="md-input-outlined"
                   />
                 </div>
               </div>
@@ -201,14 +201,14 @@ export default function BooksPage() {
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="md-btn md-btn-text md-ripple"
+                  className="md-btn md-btn-text md-state-layer"
                 >
                   キャンセル
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="md-btn md-btn-primary md-ripple"
+                  className="md-btn md-btn-filled md-state-layer"
                 >
                   {isSubmitting ? '追加中...' : '追加する'}
                 </button>

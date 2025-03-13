@@ -22,8 +22,8 @@ export default function Layout({ children }: LayoutProps) {
       <main className="container mx-auto px-4 py-4 sm:py-6 max-w-lg sm:max-w-xl md:max-w-2xl lg:max-w-4xl pb-20 sm:pb-6 animate-fadeIn">
         {children}
       </main>
-      <footer className="bg-surface border-t border-neutral-200 mt-8 hidden sm:block">
-        <div className="container mx-auto px-4 py-4 sm:py-6 text-center text-neutral-500 text-sm">
+      <footer className="bg-surface-container border-t border-outline-variant mt-8 hidden sm:block">
+        <div className="container mx-auto px-4 py-4 sm:py-6 text-center text-on-surface-variant text-sm">
           <p>© {year} YOMITAI</p>
         </div>
       </footer>

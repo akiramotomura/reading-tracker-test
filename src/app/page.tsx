@@ -80,32 +80,32 @@ export default function SummaryPage() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <h1 className="text-xl sm:text-2xl font-bold mb-6 text-center">YOMITAI まとめ</h1>
+      <h1 className="text-xl sm:text-2xl font-bold mb-6 text-center text-on-surface">YOMITAI まとめ</h1>
       
       {/* 統計カード */}
       <div className="grid grid-cols-3 gap-4 mb-6">
-        <div className="bg-surface rounded-lg elevation-1 p-4 flex flex-col items-center">
+        <div className="bg-surface-container-high rounded-md elevation-1 p-4 flex flex-col items-center">
           <BookOpenIcon className="h-6 w-6 text-primary mb-2" />
-          <span className="text-xs sm:text-sm text-neutral-600 mb-1">登録本数</span>
-          <span className="text-lg sm:text-xl font-bold">{totalBooks}</span>
+          <span className="text-xs sm:text-sm text-on-surface-variant mb-1">登録本数</span>
+          <span className="text-lg sm:text-xl font-bold text-on-surface">{totalBooks}</span>
         </div>
         
-        <div className="bg-surface rounded-lg elevation-1 p-4 flex flex-col items-center">
+        <div className="bg-surface-container-high rounded-md elevation-1 p-4 flex flex-col items-center">
           <ClockIcon className="h-6 w-6 text-primary mb-2" />
-          <span className="text-xs sm:text-sm text-neutral-600 mb-1">読書記録</span>
-          <span className="text-lg sm:text-xl font-bold">{totalReadingRecords}</span>
+          <span className="text-xs sm:text-sm text-on-surface-variant mb-1">読書記録</span>
+          <span className="text-lg sm:text-xl font-bold text-on-surface">{totalReadingRecords}</span>
         </div>
         
-        <div className="bg-surface rounded-lg elevation-1 p-4 flex flex-col items-center">
+        <div className="bg-surface-container-high rounded-md elevation-1 p-4 flex flex-col items-center">
           <StarIcon className="h-6 w-6 text-primary mb-2" />
-          <span className="text-xs sm:text-sm text-neutral-600 mb-1">30日間</span>
-          <span className="text-lg sm:text-xl font-bold">{recentReadingCount}</span>
+          <span className="text-xs sm:text-sm text-on-surface-variant mb-1">30日間</span>
+          <span className="text-lg sm:text-xl font-bold text-on-surface">{recentReadingCount}</span>
         </div>
       </div>
       
       {/* 週別読書頻度 */}
-      <div className="bg-surface rounded-lg elevation-1 p-4 mb-6 animate-scaleIn">
-        <h2 className="text-base sm:text-lg font-medium mb-4">週別読書頻度</h2>
+      <div className="bg-surface-container rounded-md elevation-1 p-4 mb-6 animate-scaleIn">
+        <h2 className="text-base sm:text-lg font-medium mb-4 text-on-surface">週別読書頻度</h2>
         
         <div className="h-40 sm:h-48">
           <div className="flex h-full items-end space-x-2">
@@ -116,13 +116,13 @@ export default function SummaryPage() {
               return (
                 <div key={week} className="flex flex-col items-center flex-1">
                   <div
-                    className="w-full bg-primary-300 rounded-t"
+                    className="w-full bg-primary-container rounded-t"
                     style={{ height: `${height}%` }}
                   ></div>
-                  <div className="text-xs text-neutral-500 mt-1 transform -rotate-45 origin-top-left whitespace-nowrap">
+                  <div className="text-xs text-on-surface-variant mt-1 transform -rotate-45 origin-top-left whitespace-nowrap">
                     {week}
                   </div>
-                  <div className="text-xs font-medium mt-3">{count}件</div>
+                  <div className="text-xs font-medium mt-3 text-on-surface">{count}件</div>
                 </div>
               );
             })}
@@ -131,8 +131,8 @@ export default function SummaryPage() {
       </div>
       
       {/* お気に入りの本 */}
-      <div className="bg-surface rounded-lg elevation-1 p-4 mb-6 animate-scaleIn">
-        <h2 className="text-base sm:text-lg font-medium mb-4">お気に入りの本</h2>
+      <div className="bg-surface-container rounded-md elevation-1 p-4 mb-6 animate-scaleIn">
+        <h2 className="text-base sm:text-lg font-medium mb-4 text-on-surface">お気に入りの本</h2>
         
         {favoriteBooks.length > 0 ? (
           <ul className="space-y-3">
@@ -143,7 +143,7 @@ export default function SummaryPage() {
                     <span
                       key={i}
                       className={`text-base sm:text-lg ${
-                        i < Math.round(averageRating) ? 'text-warning' : 'text-neutral-300'
+                        i < Math.round(averageRating) ? 'text-tertiary' : 'text-outline-variant'
                       }`}
                     >
                       ★
@@ -152,7 +152,7 @@ export default function SummaryPage() {
                 </div>
                 <button 
                   onClick={() => book && navigateToBookDetail(book.id)}
-                  className="text-sm sm:text-base text-neutral-800 hover:text-primary truncate md-ripple bg-transparent text-left"
+                  className="text-sm sm:text-base text-on-surface hover:text-primary truncate md-state-layer bg-transparent text-left"
                 >
                   {book?.title}
                 </button>
@@ -160,17 +160,17 @@ export default function SummaryPage() {
             ))}
           </ul>
         ) : (
-          <p className="text-neutral-500 text-sm">まだお気に入りの本はありません</p>
+          <p className="text-on-surface-variant text-sm">まだお気に入りの本はありません</p>
         )}
       </div>
       
       {/* 最近の読書記録 */}
-      <div className="bg-surface rounded-lg elevation-1 p-4 mb-6 animate-scaleIn">
+      <div className="bg-surface-container rounded-md elevation-1 p-4 mb-6 animate-scaleIn">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-base sm:text-lg font-medium">最近の読書記録</h2>
+          <h2 className="text-base sm:text-lg font-medium text-on-surface">最近の読書記録</h2>
           <button
             onClick={() => router.push('/reading-records')}
-            className="text-xs sm:text-sm text-primary hover:text-primary-700 md-ripple bg-transparent"
+            className="text-xs sm:text-sm text-primary hover:text-primary md-state-layer bg-transparent rounded-full px-3 py-1"
           >
             すべて見る
           </button>
@@ -183,7 +183,7 @@ export default function SummaryPage() {
       <div className="grid grid-cols-2 gap-4 mb-6">
         <button
           onClick={() => router.push('/reading-records/new')}
-          className="md-btn md-btn-primary md-ripple flex flex-col items-center py-3"
+          className="md-btn md-btn-filled md-state-layer flex flex-col items-center py-3"
         >
           <BookOpenIcon className="h-6 w-6 mb-1" />
           <span className="text-sm sm:text-base font-medium">読書を記録</span>
@@ -191,7 +191,7 @@ export default function SummaryPage() {
         
         <button
           onClick={() => router.push('/books/new')}
-          className="md-btn md-btn-outline md-ripple flex flex-col items-center py-3"
+          className="md-btn md-btn-filled-tonal md-state-layer flex flex-col items-center py-3"
         >
           <BookmarkIcon className="h-6 w-6 mb-1" />
           <span className="text-sm sm:text-base font-medium">本を追加</span>
