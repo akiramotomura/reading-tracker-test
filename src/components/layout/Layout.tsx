@@ -24,7 +24,7 @@ export default function Layout({ children }: LayoutProps) {
       </main>
       <footer className="bg-white border-t border-gray-100 mt-8 hidden sm:block">
         <div className="container mx-auto px-4 py-4 sm:py-6 text-center text-gray-500 text-sm">
-          <p>© {year} 読書記録アプリ - モバイル版</p>
+          <p>© {year} YOMITAI</p>
         </div>
       </footer>
     </div>

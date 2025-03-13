@@ -51,7 +51,7 @@ export default function Navbar() {
           <div className="relative flex h-16 items-center justify-between">
             <div className="flex flex-shrink-0 items-center">
               <Link href="/" className="text-primary text-xl font-bold">
-                読書記録
+                YOMITAI
               </Link>
             </div>
             <div className="flex space-x-4">
@@ -102,7 +102,7 @@ export default function Navbar() {
       {/* モバイル用ヘッダー（タイトルのみ） */}
       <div className="sm:hidden bg-white shadow-sm sticky top-0 z-10">
         <div className="px-4 py-3 flex items-center justify-center">
-          <div className="text-primary text-lg font-bold">読書記録</div>
+          <div className="text-primary text-lg font-bold">YOMITAI</div>
         </div>
       </div>
     </>

@@ -9,7 +9,7 @@ import ClientErrorBoundary from '@/components/common/ClientErrorBoundary';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: '読書記録アプリ - モバイル版',
+  title: 'YOMITAI - 子供の読書記録アプリ',
   description: '幼児の親が子供の読書記録を簡単に管理できるモバイル対応WEBアプリ',
   viewport: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0',
 };
