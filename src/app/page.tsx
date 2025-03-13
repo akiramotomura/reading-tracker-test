@@ -2,14 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useAuth } from '@/contexts/AuthContext';
+import { useReading } from '@/contexts/ReadingContext';
 import ReadingRecordList from '@/components/reading-records/ReadingRecordList';
-import BookList from '@/components/books/BookList';
+import { BookOpenIcon, ClockIcon, StarIcon, BookmarkIcon } from '@heroicons/react/24/outline';
 
-export default function Home() {
-  const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<'recent' | 'books'>('recent');
-  // 初期値として2025を設定し、クライアントサイドでのみ現在の年に更新
+export default function SummaryPage() {
+  const { books, readingRecords } = useReading();
   const [year, setYear] = useState(2025);
   
   useEffect(() => {
@@ -17,150 +15,175 @@ export default function Home() {
     setYear(new Date().getFullYear());
   }, []);
 
+  // 読書記録の統計情報を計算
+  const totalBooks = books.length;
+  const totalReadingRecords = readingRecords.length;
+  
+  // 最近30日間の読書記録数
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  const recentReadingRecords = readingRecords.filter(
+    record => new Date(record.readDate) >= thirtyDaysAgo
+  );
+  const recentReadingCount = recentReadingRecords.length;
+
+  // 読書頻度（週別）
+  const weeklyReadingData: Record<string, number> = {};
+  const now = new Date();
+  
+  // 過去4週間の週ごとの読書記録数を計算
+  for (let i = 0; i < 4; i++) {
+    const weekStart = new Date(now);
+    weekStart.setDate(now.getDate() - (7 * i + now.getDay()));
+    weekStart.setHours(0, 0, 0, 0);
+    
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekStart.getDate() + 6);
+    weekEnd.setHours(23, 59, 59, 999);
+    
+    const weekLabel = `${weekStart.getMonth() + 1}/${weekStart.getDate()}〜${weekEnd.getMonth() + 1}/${weekEnd.getDate()}`;
+    
+    const weekRecords = readingRecords.filter(record => {
+      const recordDate = new Date(record.readDate);
+      return recordDate >= weekStart && recordDate <= weekEnd;
+    });
+    
+    weeklyReadingData[weekLabel] = weekRecords.length;
+  }
+
+  // お気に入りの本（評価の平均が高い順）
+  const bookRatings: Record<string, { sum: number; count: number }> = {};
+  
+  readingRecords.forEach(record => {
+    if (!bookRatings[record.bookId]) {
+      bookRatings[record.bookId] = { sum: 0, count: 0 };
+    }
+    bookRatings[record.bookId].sum += record.favoriteRating;
+    bookRatings[record.bookId].count += 1;
+  });
+
+  const favoriteBooks = Object.entries(bookRatings)
+    .map(([bookId, { sum, count }]) => ({
+      book: books.find(b => b.id === bookId),
+      averageRating: sum / count
+    }))
+    .filter(item => item.book) // 本が見つからない場合は除外
+    .sort((a, b) => b.averageRating - a.averageRating)
+    .slice(0, 3);
+
   return (
     <div className="max-w-4xl mx-auto">
-      <section className="mb-6">
-        <h1 className="text-2xl sm:text-3xl font-bold text-center mb-3 sm:mb-4">
-          お子様の読書記録を楽しく管理
-        </h1>
-        <p className="text-center text-base sm:text-lg text-gray-600 mb-4 sm:mb-6">
-          読んだ本の記録、お気に入り度、感想を簡単に記録。読書の習慣づけをサポートします。
-        </p>
-      </section>
-
-      <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
-        <div className="card flex flex-col items-center">
-          <div className="w-14 h-14 bg-primary-100 rounded-full flex items-center justify-center mb-3 text-primary">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-7 w-7"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-              />
-            </svg>
-          </div>
-          <h2 className="text-lg font-semibold mb-2">読書を記録</h2>
-          <p className="text-gray-600 text-center mb-4 text-sm sm:text-base">
-            今日読んだ本を記録しましょう
-          </p>
-          <Link
-            href="/reading-records/new"
-            className="mt-auto btn btn-primary text-sm sm:text-base"
-          >
-            記録する
-          </Link>
+      <h1 className="text-xl sm:text-2xl font-bold mb-4 text-center">読書記録の概要</h1>
+      
+      {/* 統計カード */}
+      <div className="grid grid-cols-3 gap-3 sm:gap-4 mb-6">
+        <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4 flex flex-col items-center">
+          <BookOpenIcon className="h-6 w-6 text-primary-500 mb-1" />
+          <span className="text-xs sm:text-sm text-gray-500">登録本数</span>
+          <span className="text-lg sm:text-xl font-bold">{totalBooks}</span>
         </div>
-
-        <div className="card flex flex-col items-center">
-          <div className="w-14 h-14 bg-primary-100 rounded-full flex items-center justify-center mb-3 text-primary">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-7 w-7"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-              />
-            </svg>
-          </div>
-          <h2 className="text-lg font-semibold mb-2">本を管理</h2>
-          <p className="text-gray-600 text-center mb-4 text-sm sm:text-base">
-            お気に入りの本を整理しましょう
-          </p>
-          <Link
-            href="/books/new"
-            className="mt-auto btn btn-primary text-sm sm:text-base"
-          >
-            本を追加
-          </Link>
+        
+        <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4 flex flex-col items-center">
+          <ClockIcon className="h-6 w-6 text-primary-500 mb-1" />
+          <span className="text-xs sm:text-sm text-gray-500">読書記録</span>
+          <span className="text-lg sm:text-xl font-bold">{totalReadingRecords}</span>
         </div>
-
-        <div className="card flex flex-col items-center">
-          <div className="w-14 h-14 bg-primary-100 rounded-full flex items-center justify-center mb-3 text-primary">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-7 w-7"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-              />
-            </svg>
-          </div>
-          <h2 className="text-lg font-semibold mb-2">読書分析</h2>
-          <p className="text-gray-600 text-center mb-4 text-sm sm:text-base">
-            読書の傾向を確認できます
-          </p>
-          <Link
-            href="/analytics"
-            className="mt-auto btn btn-primary text-sm sm:text-base"
-          >
-            分析を見る
-          </Link>
+        
+        <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4 flex flex-col items-center">
+          <StarIcon className="h-6 w-6 text-primary-500 mb-1" />
+          <span className="text-xs sm:text-sm text-gray-500">30日間</span>
+          <span className="text-lg sm:text-xl font-bold">{recentReadingCount}</span>
         </div>
-      </section>
-
-      <section className="mb-6 sm:mb-8">
-        <div className="flex justify-between items-center mb-4">
-          <div className="flex space-x-2 sm:space-x-4 border-b border-gray-200 w-full overflow-x-auto pb-1 scrollbar-hide">
-            <button
-              className={`py-2 px-3 sm:px-4 whitespace-nowrap ${
-                activeTab === 'recent'
-                  ? 'tab-active'
-                  : 'tab'
-              }`}
-              onClick={() => setActiveTab('recent')}
-            >
-              最近の記録
-            </button>
-            <button
-              className={`py-2 px-3 sm:px-4 whitespace-nowrap ${
-                activeTab === 'books'
-                  ? 'tab-active'
-                  : 'tab'
-              }`}
-              onClick={() => setActiveTab('books')}
-            >
-              本の一覧
-            </button>
+      </div>
+      
+      {/* 週別読書頻度 */}
+      <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
+        <h2 className="text-base sm:text-lg font-semibold mb-3">週別読書頻度</h2>
+        
+        <div className="h-40 sm:h-48">
+          <div className="flex h-full items-end space-x-2">
+            {Object.entries(weeklyReadingData).reverse().map(([week, count]) => {
+              const maxCount = Math.max(...Object.values(weeklyReadingData), 1);
+              const height = count > 0 ? (count / maxCount) * 100 : 5;
+              
+              return (
+                <div key={week} className="flex flex-col items-center flex-1">
+                  <div
+                    className="w-full bg-primary-500 rounded-t"
+                    style={{ height: `${height}%` }}
+                  ></div>
+                  <div className="text-xs text-gray-500 mt-1 transform -rotate-45 origin-top-left whitespace-nowrap">
+                    {week}
+                  </div>
+                  <div className="text-xs font-medium mt-3">{count}件</div>
+                </div>
+              );
+            })}
           </div>
         </div>
-
-        {activeTab === 'recent' ? (
-          <>
-            <h2 className="text-xl font-semibold mb-3 sm:mb-4">最近の読書記録</h2>
-            <ReadingRecordList limit={5} />
-          </>
+      </div>
+      
+      {/* お気に入りの本 */}
+      <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
+        <h2 className="text-base sm:text-lg font-semibold mb-3">お気に入りの本</h2>
+        
+        {favoriteBooks.length > 0 ? (
+          <ul className="space-y-3">
+            {favoriteBooks.map(({ book, averageRating }) => (
+              <li key={book?.id} className="flex items-center">
+                <div className="flex mr-2">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <span
+                      key={i}
+                      className={`text-base sm:text-lg ${
+                        i < Math.round(averageRating) ? 'text-yellow-400' : 'text-gray-300'
+                      }`}
+                    >
+                      ★
+                    </span>
+                  ))}
+                </div>
+                <Link href={`/books/${book?.id}`} className="text-sm sm:text-base text-gray-800 hover:text-primary-600 truncate">
+                  {book?.title}
+                </Link>
+              </li>
+            ))}
+          </ul>
         ) : (
-          <>
-            <h2 className="text-xl font-semibold mb-3 sm:mb-4">登録されている本</h2>
-            <BookList limit={6} />
-          </>
+          <p className="text-gray-500 text-sm">まだお気に入りの本はありません</p>
         )}
-      </section>
-
-      <section className="text-center mb-6 sm:mb-8">
-        <p className="text-gray-600 text-sm">
-          © {year} 読書記録アプリ - モバイル版
-        </p>
-      </section>
+      </div>
+      
+      {/* 最近の読書記録 */}
+      <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
+        <div className="flex justify-between items-center mb-3">
+          <h2 className="text-base sm:text-lg font-semibold">最近の読書記録</h2>
+          <Link href="/reading-records" className="text-xs sm:text-sm text-primary-600 hover:text-primary-800">
+            すべて見る
+          </Link>
+        </div>
+        
+        <ReadingRecordList limit={3} />
+      </div>
+      
+      {/* クイックアクション */}
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6">
+        <Link
+          href="/reading-records/new"
+          className="bg-primary-500 text-white rounded-lg p-3 sm:p-4 text-center flex flex-col items-center"
+        >
+          <BookOpenIcon className="h-6 w-6 mb-1" />
+          <span className="text-sm sm:text-base font-medium">読書を記録</span>
+        </Link>
+        
+        <Link
+          href="/books/new"
+          className="bg-primary-100 text-primary-800 rounded-lg p-3 sm:p-4 text-center flex flex-col items-center"
+        >
+          <BookmarkIcon className="h-6 w-6 mb-1" />
+          <span className="text-sm sm:text-base font-medium">本を追加</span>
+        </Link>
+      </div>
     </div>
   );
 }
