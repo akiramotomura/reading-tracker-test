@@ -2,15 +2,14 @@
 
 import { Fragment, useState, useEffect } from 'react';
 import { Disclosure } from '@headlessui/react';
-import { Bars3Icon, XMarkIcon, BookOpenIcon, ChartBarIcon, BookmarkIcon } from '@heroicons/react/24/outline';
+import { Bars3Icon, XMarkIcon, ChartBarIcon, BookOpenIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-// モバイル版のナビゲーション
+// モバイル版のナビゲーション（2つのタブに簡略化）
 const navigation = [
-  { name: '概要', href: '/', icon: ChartBarIcon, current: true },
-  { name: '読書記録', href: '/reading-records', icon: BookOpenIcon, current: false },
-  { name: '本の管理', href: '/books', icon: BookmarkIcon, current: false },
+  { name: 'まとめ', href: '/', icon: ChartBarIcon, current: true },
+  { name: 'えほん', href: '/books', icon: BookOpenIcon, current: false },
 ];
 
 function classNames(...classes: string[]) {
@@ -27,10 +26,20 @@ export default function Navbar() {
 
   // パスに基づいて現在のナビゲーション項目を更新
   useEffect(() => {
-    const newNavigation = navigation.map(item => ({
-      ...item,
-      current: pathname === item.href || pathname.startsWith(`${item.href}/`)
-    }));
+    const newNavigation = navigation.map(item => {
+      // 「えほん」タブは /books または /reading-records で始まるパスの場合にアクティブにする
+      if (item.name === 'えほん') {
+        return {
+          ...item,
+          current: pathname.startsWith('/books') || pathname.startsWith('/reading-records')
+        };
+      }
+      // 「まとめ」タブはホームページまたは /analytics で始まるパスの場合にアクティブにする
+      return {
+        ...item,
+        current: pathname === '/' || pathname === '/analytics' || pathname.startsWith('/analytics/')
+      };
+    });
     setUpdatedNavigation(newNavigation);
   }, [pathname]);
 
@@ -68,7 +77,7 @@ export default function Navbar() {
 
       {/* モバイル用ボトムタブナビゲーション */}
       <div className="sm:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-10">
-        <div className="grid grid-cols-3">
+        <div className="grid grid-cols-2">
           {updatedNavigation.map((item) => {
             const Icon = item.icon;
             return (
@@ -79,7 +88,7 @@ export default function Navbar() {
                   item.current
                     ? 'text-primary'
                     : 'text-gray-500',
-                  'flex flex-col items-center justify-center py-2'
+                  'flex flex-col items-center justify-center py-3'
                 )}
               >
                 <Icon className="h-6 w-6" aria-hidden="true" />

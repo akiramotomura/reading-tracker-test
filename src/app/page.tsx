@@ -73,7 +73,7 @@ export default function SummaryPage() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <h1 className="text-xl sm:text-2xl font-bold mb-4 text-center">読書記録の概要</h1>
+      <h1 className="text-xl sm:text-2xl font-bold mb-4 text-center">読書記録のまとめ</h1>
       
       {/* 統計カード */}
       <div className="grid grid-cols-3 gap-3 sm:gap-4 mb-6">
