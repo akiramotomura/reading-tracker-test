@@ -1,18 +1,11 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState } from 'react';
-import { User, Auth } from 'firebase/auth';
-import { auth } from '../lib/firebase';
+import { User } from 'firebase/auth';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
 
 // デバッグモードかどうか
 const DEBUG = process.env.DEBUG === 'true';
-
-// モック認証用の拡張インターフェース
-interface ExtendedAuth extends Auth {
-  signInWithEmailAndPassword?: (email: string, password: string) => Promise<{ user: User }>;
-  createUserWithEmailAndPassword?: (email: string, password: string) => Promise<{ user: User }>;
-}
 
 interface AuthContextType {
   user: User | null;
@@ -39,98 +32,75 @@ export const useAuth = () => {
   return useContext(AuthContext);
 };
 
+// モバイル版では認証不要のため、デフォルトユーザーを作成
+const createDefaultUser = (): User => {
+  return {
+    uid: 'default-user',
+    email: 'guest@example.com',
+    emailVerified: true,
+    displayName: 'ゲストユーザー',
+    isAnonymous: false,
+    providerData: [],
+    providerId: 'password',
+    metadata: {
+      creationTime: new Date().toISOString(),
+      lastSignInTime: new Date().toISOString()
+    },
+    phoneNumber: null,
+    photoURL: null,
+    refreshToken: '',
+    tenantId: null,
+    delete: async () => {},
+    getIdToken: async () => 'mock-token',
+    getIdTokenResult: async () => ({ 
+      token: 'mock-token', 
+      claims: {}, 
+      issuedAtTime: '', 
+      expirationTime: '', 
+      authTime: '', 
+      signInProvider: null, 
+      signInSecondFactor: null 
+    }),
+    reload: async () => {},
+    toJSON: () => ({ uid: 'default-user', email: 'guest@example.com' })
+  } as User;
+};
+
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isClient, setIsClient] = useState(false);
-  const [authInitialized, setAuthInitialized] = useState(false);
-  const extendedAuth = auth as ExtendedAuth;
 
   // クライアントサイドかどうかを確認
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  // 認証状態の監視
+  // 認証状態の初期化
   useEffect(() => {
     if (!isClient) return;
 
-    let unsubscribe: (() => void) | undefined;
-    let mounted = true;
+    // モバイル版では常にデフォルトユーザーを使用
+    const defaultUser = createDefaultUser();
+    setUser(defaultUser);
+    setLoading(false);
     
-    const initializeAuth = async () => {
-      if (DEBUG) {
-        console.log('AuthProvider: initializing');
-      }
-      
-      try {
-        unsubscribe = auth.onAuthStateChanged(
-          (user) => {
-            if (!mounted) return;
-            
-            if (DEBUG) {
-              console.log('Auth state changed:', user?.uid);
-            }
-            
-            setUser(user);
-            setLoading(false);
-            setAuthInitialized(true);
-          }, 
-          (error) => {
-            if (!mounted) return;
-            
-            console.error('Auth state error:', error);
-            setError('認証状態の監視中にエラーが発生しました');
-            setLoading(false);
-            setAuthInitialized(true);
-          }
-        );
-      } catch (error) {
-        if (!mounted) return;
-        
-        console.error('Error in auth state listener:', error);
-        setError('認証状態の監視の設定中にエラーが発生しました');
-        setLoading(false);
-        setAuthInitialized(true);
-      }
-    };
-
-    initializeAuth();
-
-    return () => {
-      mounted = false;
-      if (unsubscribe) {
-        unsubscribe();
-      }
-    };
+    if (DEBUG) {
+      console.log('AuthProvider: Using default user for mobile version');
+    }
   }, [isClient]);
 
+  // 認証関連の関数（モバイル版では実際には何もしない）
   const signIn = async (email: string, password: string) => {
     if (!isClient) {
       throw new Error('Cannot sign in on server side');
     }
     
-    try {
-      setLoading(true);
-      setError(null);
-      
-      if (extendedAuth.signInWithEmailAndPassword) {
-        const result = await extendedAuth.signInWithEmailAndPassword(email, password);
-        if (DEBUG) {
-          console.log('Sign in successful:', result.user?.uid);
-        }
-        setUser(result.user);
-      } else {
-        throw new Error('Authentication method not available');
-      }
-    } catch (error) {
-      console.error('Sign in error:', error);
-      setError('ログインに失敗しました。メールアドレスとパスワードを確認してください。');
-      throw error;
-    } finally {
-      setLoading(false);
-    }
+    // モバイル版では常にデフォルトユーザーを使用
+    setUser(createDefaultUser());
+    setLoading(false);
+    setError(null);
   };
 
   const signUp = async (email: string, password: string) => {
@@ -138,26 +108,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       throw new Error('Cannot sign up on server side');
     }
     
-    try {
-      setLoading(true);
-      setError(null);
-      
-      if (extendedAuth.createUserWithEmailAndPassword) {
-        const result = await extendedAuth.createUserWithEmailAndPassword(email, password);
-        if (DEBUG) {
-          console.log('Sign up successful:', result.user?.uid);
-        }
-        setUser(result.user);
-      } else {
-        throw new Error('Authentication method not available');
-      }
-    } catch (error) {
-      console.error('Sign up error:', error);
-      setError('アカウント作成に失敗しました。別のメールアドレスを試してください。');
-      throw error;
-    } finally {
-      setLoading(false);
-    }
+    // モバイル版では常にデフォルトユーザーを使用
+    setUser(createDefaultUser());
+    setLoading(false);
+    setError(null);
   };
 
   const logout = async () => {
@@ -165,27 +119,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       throw new Error('Cannot logout on server side');
     }
     
-    try {
-      setLoading(true);
-      setError(null);
-      
-      await auth.signOut();
-      if (DEBUG) {
-        console.log('Sign out successful');
-      }
-      setUser(null);
-    } catch (error) {
-      console.error('Sign out error:', error);
-      setError('ログアウトに失敗しました。');
-      throw error;
-    } finally {
-      setLoading(false);
-    }
+    // モバイル版ではログアウトしても同じユーザーを使用
+    setUser(createDefaultUser());
+    setLoading(false);
+    setError(null);
   };
 
   const value = {
     user,
-    loading: loading || !authInitialized,
+    loading,
     error,
     signIn,
     signUp,
@@ -193,7 +135,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   // ローディング中のフォールバックUI
-  if (isClient && loading && !authInitialized) {
+  if (isClient && loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
         <div className="text-center">

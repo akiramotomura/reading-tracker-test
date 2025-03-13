@@ -1,66 +1,63 @@
-# 読書記録アプリ
+# Mobile Reading Tracker
 
-幼児の親が子供の読書記録を簡単に管理できるWEBアプリケーションです。
+A mobile-first reading tracker application for parents to record and manage their children's reading habits without requiring user login.
 
-## 主な機能
+## Features
 
-- **読書記録管理**: 本のタイトル、著者、読んだ日付、読んだ回数、お気に入り度、子供の反応などを記録
-- **本の管理**: お気に入りの本のリストを作成・管理
-- **読書分析**: 読書の傾向分析やお気に入りの本のランキング表示
-- **読書目標**: 読書習慣を身につけるための目標設定と達成状況の追跡
+- **No Authentication Required**: Start using the app immediately without creating an account
+- **Mobile-First Design**: Optimized for smartphones and tablets
+- **Reading Records**: Track books read, reading frequency, and children's reactions
+- **Book Management**: Organize your children's book collection
+- **Analytics**: View reading trends and statistics
+- **Local Storage**: All data is stored locally on your device
 
-## 技術スタック
+## Technology Stack
 
-- **フロントエンド**: Next.js, React, TypeScript, Tailwind CSS
-- **認証**: Firebase Authentication
-- **データ管理**: React Context API (将来的にはFirebase Firestoreと連携予定)
+- Next.js
+- React
+- TypeScript
+- Tailwind CSS
+- Local Storage for data persistence
 
-## 開発環境のセットアップ
+## Getting Started
 
-1. リポジトリをクローン
-   ```
-   git clone https://github.com/yourusername/reading-tracker.git
-   cd reading-tracker
-   ```
+### Prerequisites
 
-2. 依存パッケージをインストール
-   ```
-   npm install
-   ```
+- Node.js 14.x or higher
+- npm or yarn
 
-3. 環境変数の設定
-   `.env.local`ファイルを作成し、以下の内容を設定:
-   ```
-   NEXT_PUBLIC_FIREBASE_API_KEY=your-api-key
-   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-auth-domain
-   NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
-   NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-storage-bucket
-   NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your-messaging-sender-id
-   NEXT_PUBLIC_FIREBASE_APP_ID=your-app-id
-   ```
+### Installation
 
-4. 開発サーバーを起動
-   ```
-   npm run dev
-   ```
+1. Clone the repository
+```bash
+git clone https://github.com/yourusername/mobile-reading-tracker.git
+cd mobile-reading-tracker
+```
 
-5. ブラウザで `http://localhost:3000` にアクセス
+2. Install dependencies
+```bash
+npm install
+# or
+yarn install
+```
 
-## デプロイ
+3. Run the development server
+```bash
+npm run dev
+# or
+yarn dev
+```
 
-このプロジェクトはVercelにデプロイされています。メインブランチへのプッシュが自動的にデプロイされます。
+4. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-## 今後の拡張予定
+## Project Structure
 
-1. Firebase Firestoreとの連携によるデータの永続化
-2. 複数の子供の読書記録を管理する機能
-3. 外部APIと連携した本の情報の自動取得
-4. 読書記録の共有機能
+- `/src/app`: Next.js app router pages
+- `/src/components`: React components
+- `/src/contexts`: React context providers
+- `/src/types`: TypeScript type definitions
+- `/src/lib`: Utility functions and libraries
 
-## ライセンス
+## License
 
-MIT
-
-## 作者
-
-[Your Name](https://github.com/yourusername)
+This project is licensed under the MIT License - see the LICENSE file for details.

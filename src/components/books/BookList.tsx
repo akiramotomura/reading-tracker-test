@@ -47,21 +47,21 @@ export default function BookList({ limit }: BookListProps) {
 
   if (displayBooks.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-500">
+      <div className="text-center py-6 text-gray-500 text-sm sm:text-base">
         本はまだ登録されていません
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
       {displayBooks.map((book) => (
         <div
           key={book.id}
-          className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
+          className="bg-white p-3 sm:p-4 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
         >
           <div className="flex">
-            <div className="flex-shrink-0 w-24 h-32 mr-4">
+            <div className="flex-shrink-0 w-20 h-28 sm:w-24 sm:h-32 mr-3 sm:mr-4">
               {book.coverImage ? (
                 <img
                   src={book.coverImage}
@@ -72,48 +72,48 @@ export default function BookList({ limit }: BookListProps) {
                   }}
                 />
               ) : (
-                <div className="w-full h-full bg-gray-200 rounded flex items-center justify-center text-gray-400">
+                <div className="w-full h-full bg-gray-200 rounded flex items-center justify-center text-gray-400 text-xs sm:text-sm">
                   No Image
                 </div>
               )}
             </div>
-            <div className="flex-grow">
-              <h3 className="font-medium text-lg">
+            <div className="flex-grow min-w-0">
+              <h3 className="font-medium text-base sm:text-lg line-clamp-2">
                 <Link href={`/books/${book.id}`} className="hover:text-indigo-600">
                   {book.title}
                 </Link>
               </h3>
-              <p className="text-sm text-gray-600">{book.author}</p>
+              <p className="text-xs sm:text-sm text-gray-600 truncate">{book.author}</p>
               {book.publisher && (
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-gray-500 truncate">
                   {book.publisher}
                   {book.publishedYear && ` (${book.publishedYear})`}
                 </p>
               )}
               
-              <div className="mt-2 flex items-center text-sm text-gray-500">
+              <div className="mt-1 sm:mt-2 flex items-center text-xs sm:text-sm text-gray-500">
                 <span>
                   読書記録: {getReadingRecordsByBookId(book.id).length}件
                 </span>
               </div>
               
-              <div className="mt-3 flex space-x-2">
+              <div className="mt-2 sm:mt-3 flex flex-wrap gap-2">
                 <Link
                   href={`/books/${book.id}/records/new`}
-                  className="text-xs text-indigo-600 hover:text-indigo-800"
+                  className="text-xs text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-2 py-1 rounded-md"
                 >
                   記録を追加
                 </Link>
                 <Link
                   href={`/books/${book.id}/edit`}
-                  className="text-xs text-gray-500 hover:text-gray-700"
+                  className="text-xs text-gray-500 hover:text-gray-700 bg-gray-50 hover:bg-gray-100 px-2 py-1 rounded-md"
                 >
                   編集
                 </Link>
                 <button
                   onClick={() => handleDelete(book.id)}
                   disabled={isDeleting}
-                  className="text-xs text-red-500 hover:text-red-700 disabled:opacity-50"
+                  className="text-xs text-red-500 hover:text-red-700 disabled:opacity-50 bg-red-50 hover:bg-red-100 px-2 py-1 rounded-md"
                 >
                   削除
                 </button>
@@ -127,7 +127,7 @@ export default function BookList({ limit }: BookListProps) {
         <div className="col-span-full text-center mt-4">
           <Link
             href="/books"
-            className="text-indigo-600 hover:text-indigo-800 font-medium"
+            className="text-indigo-600 hover:text-indigo-800 font-medium text-sm sm:text-base px-4 py-2 inline-block"
           >
             すべての本を見る
           </Link>

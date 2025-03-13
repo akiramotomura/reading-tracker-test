@@ -1,13 +1,18 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect } from 'react';
-import { Book, ReadingRecord } from '@/types';
+import { Book, ReadingRecord, generateMockData } from '@/types';
 import { useAuth } from './AuthContext';
-import { mockDb } from '@/lib/mockDb';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
 
 // デバッグモードかどうか
 const DEBUG = process.env.DEBUG === 'true';
+
+// ローカルストレージのキー
+const STORAGE_KEYS = {
+  BOOKS: 'mobile-reading-tracker-books',
+  READING_RECORDS: 'mobile-reading-tracker-records',
+};
 
 interface ReadingContextType {
   books: Book[];
@@ -46,6 +51,29 @@ export const useReading = () => {
   return useContext(ReadingContext);
 };
 
+// ローカルストレージのラッパー
+const safeLocalStorage = {
+  getItem: (key: string): string | null => {
+    try {
+      if (typeof window === 'undefined') return null;
+      return window.localStorage.getItem(key);
+    } catch (error) {
+      console.error(`Error getting item from localStorage: ${key}`, error);
+      return null;
+    }
+  },
+  setItem: (key: string, value: string): boolean => {
+    try {
+      if (typeof window === 'undefined') return false;
+      window.localStorage.setItem(key, value);
+      return true;
+    } catch (error) {
+      console.error(`Error setting item in localStorage: ${key}`, error);
+      return false;
+    }
+  }
+};
+
 export const ReadingProvider = ({ children }: { children: React.ReactNode }) => {
   const { user, loading: authLoading } = useAuth();
   const [books, setBooks] = useState<Book[]>([]);
@@ -53,7 +81,6 @@ export const ReadingProvider = ({ children }: { children: React.ReactNode }) => 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isClient, setIsClient] = useState(false);
-  const [dataInitialized, setDataInitialized] = useState(false);
 
   // クライアントサイドかどうかを確認
   useEffect(() => {
@@ -62,116 +89,83 @@ export const ReadingProvider = ({ children }: { children: React.ReactNode }) => 
 
   // 初期データの読み込み
   useEffect(() => {
-    if (!isClient || authLoading) return;
-    
-    let isMounted = true;
-    let unsubscribeBooks: (() => void) | undefined;
-    let unsubscribeRecords: (() => void) | undefined;
+    if (!isClient) return;
     
     const loadData = async () => {
-      if (!isMounted) return;
-      
       setLoading(true);
       setError(null);
       
       try {
-        if (user) {
-          if (DEBUG) {
-            console.log('ReadingProvider: Loading data for user:', user.uid);
-          }
+        // ローカルストレージからデータを読み込む
+        const booksJson = safeLocalStorage.getItem(STORAGE_KEYS.BOOKS);
+        const recordsJson = safeLocalStorage.getItem(STORAGE_KEYS.READING_RECORDS);
+        
+        let loadedBooks: Book[] = [];
+        let loadedRecords: ReadingRecord[] = [];
+        
+        if (booksJson) {
+          loadedBooks = JSON.parse(booksJson);
+        }
+        
+        if (recordsJson) {
+          loadedRecords = JSON.parse(recordsJson);
+        }
+        
+        // データがない場合はモックデータを使用
+        if (loadedBooks.length === 0 || loadedRecords.length === 0) {
+          const { books: mockBooks, readingRecords: mockRecords } = generateMockData();
           
-          // モックデータベースからデータを取得
-          const userBooks = await mockDb.getBooks(user.uid);
-          if (!isMounted) return;
+          // モックデータのユーザーIDを現在のユーザーIDに変更
+          loadedBooks = mockBooks.map(book => ({
+            ...book,
+            userId: user?.uid || 'default-user'
+          }));
           
-          const userRecords = await mockDb.getReadingRecords(user.uid);
-          if (!isMounted) return;
+          loadedRecords = mockRecords.map(record => ({
+            ...record,
+            userId: user?.uid || 'default-user'
+          }));
           
-          setBooks(userBooks);
-          setReadingRecords(userRecords);
-          
-          if (DEBUG) {
-            console.log('Loaded data from mock database:', { 
-              books: userBooks.length, 
-              readingRecords: userRecords.length 
-            });
-          }
-          
-          setDataInitialized(true);
-        } else {
-          // ユーザーがログアウトした場合はデータをクリア
-          setBooks([]);
-          setReadingRecords([]);
-          setDataInitialized(true);
+          // ローカルストレージに保存
+          safeLocalStorage.setItem(STORAGE_KEYS.BOOKS, JSON.stringify(loadedBooks));
+          safeLocalStorage.setItem(STORAGE_KEYS.READING_RECORDS, JSON.stringify(loadedRecords));
+        }
+        
+        setBooks(loadedBooks);
+        setReadingRecords(loadedRecords);
+        
+        if (DEBUG) {
+          console.log('Loaded data from localStorage:', { 
+            books: loadedBooks.length, 
+            readingRecords: loadedRecords.length 
+          });
         }
       } catch (error) {
         console.error('Failed to load reading data:', error);
-        if (isMounted) {
-          setError('データの読み込みに失敗しました。再読み込みしてください。');
-        }
+        setError('データの読み込みに失敗しました。再読み込みしてください。');
       } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
+        setLoading(false);
       }
     };
-
-    const setupListeners = async () => {
-      if (!user || !isMounted) return;
-      
-      try {
-        // データの変更を監視
-        unsubscribeBooks = mockDb.addListener('books', (updatedBooks: Book[]) => {
-          if (!isMounted) return;
-          
-          const userBooks = updatedBooks.filter(book => book.userId === user.uid);
-          setBooks(userBooks);
-          
-          if (DEBUG) {
-            console.log('Books updated:', userBooks.length);
-          }
-        });
-        
-        unsubscribeRecords = mockDb.addListener('readingRecords', (updatedRecords: ReadingRecord[]) => {
-          if (!isMounted) return;
-          
-          const userRecords = updatedRecords.filter(record => record.userId === user.uid);
-          setReadingRecords(userRecords);
-          
-          if (DEBUG) {
-            console.log('Reading records updated:', userRecords.length);
-          }
-        });
-      } catch (error) {
-        console.error('Failed to set up data listeners:', error);
-        if (isMounted) {
-          setError('データの監視に失敗しました。再読み込みしてください。');
-        }
-      }
-    };
-
-    // ユーザーの状態に応じてデータを読み込む
-    if (user) {
-      loadData().then(() => {
-        if (isMounted) {
-          setupListeners();
-        }
-      });
-    } else if (!authLoading) {
-      // ユーザーがログアウトした場合はデータをクリア
-      setBooks([]);
-      setReadingRecords([]);
-      setLoading(false);
-      setError(null);
-      setDataInitialized(true);
-    }
     
-    return () => {
-      isMounted = false;
-      if (unsubscribeBooks) unsubscribeBooks();
-      if (unsubscribeRecords) unsubscribeRecords();
-    };
-  }, [user, authLoading, isClient]);
+    loadData();
+  }, [isClient, user]);
+
+  // データをローカルストレージに保存する関数
+  const saveToLocalStorage = () => {
+    if (!isClient) return;
+    
+    try {
+      safeLocalStorage.setItem(STORAGE_KEYS.BOOKS, JSON.stringify(books));
+      safeLocalStorage.setItem(STORAGE_KEYS.READING_RECORDS, JSON.stringify(readingRecords));
+      
+      if (DEBUG) {
+        console.log('Data saved to localStorage');
+      }
+    } catch (error) {
+      console.error('Failed to save data to localStorage:', error);
+    }
+  };
 
   // 本を追加
   const addBook = async (bookData: Omit<Book, 'id' | 'userId' | 'createdAt' | 'updatedAt'>): Promise<Book> => {
@@ -181,7 +175,22 @@ export const ReadingProvider = ({ children }: { children: React.ReactNode }) => 
     
     setError(null);
     try {
-      return await mockDb.addBook(bookData);
+      const now = new Date().toISOString();
+      const newBook: Book = {
+        ...bookData,
+        id: `book-${Date.now()}`,
+        userId: user?.uid || 'default-user',
+        createdAt: now,
+        updatedAt: now
+      };
+      
+      const updatedBooks = [...books, newBook];
+      setBooks(updatedBooks);
+      
+      // ローカルストレージに保存
+      safeLocalStorage.setItem(STORAGE_KEYS.BOOKS, JSON.stringify(updatedBooks));
+      
+      return newBook;
     } catch (error) {
       console.error('Failed to add book:', error);
       setError('本の追加に失敗しました。');
@@ -197,7 +206,25 @@ export const ReadingProvider = ({ children }: { children: React.ReactNode }) => 
     
     setError(null);
     try {
-      return await mockDb.updateBook(id, bookData);
+      const bookIndex = books.findIndex(book => book.id === id);
+      if (bookIndex === -1) {
+        throw new Error(`Book with id ${id} not found`);
+      }
+      
+      const updatedBook = {
+        ...books[bookIndex],
+        ...bookData,
+        updatedAt: new Date().toISOString()
+      };
+      
+      const updatedBooks = [...books];
+      updatedBooks[bookIndex] = updatedBook;
+      setBooks(updatedBooks);
+      
+      // ローカルストレージに保存
+      safeLocalStorage.setItem(STORAGE_KEYS.BOOKS, JSON.stringify(updatedBooks));
+      
+      return updatedBook;
     } catch (error) {
       console.error('Failed to update book:', error);
       setError('本の更新に失敗しました。');
@@ -213,7 +240,16 @@ export const ReadingProvider = ({ children }: { children: React.ReactNode }) => 
     
     setError(null);
     try {
-      return await mockDb.deleteBook(id);
+      const updatedBooks = books.filter(book => book.id !== id);
+      setBooks(updatedBooks);
+      
+      // 関連する読書記録も削除
+      const updatedRecords = readingRecords.filter(record => record.bookId !== id);
+      setReadingRecords(updatedRecords);
+      
+      // ローカルストレージに保存
+      safeLocalStorage.setItem(STORAGE_KEYS.BOOKS, JSON.stringify(updatedBooks));
+      safeLocalStorage.setItem(STORAGE_KEYS.READING_RECORDS, JSON.stringify(updatedRecords));
     } catch (error) {
       console.error('Failed to delete book:', error);
       setError('本の削除に失敗しました。');
@@ -229,7 +265,22 @@ export const ReadingProvider = ({ children }: { children: React.ReactNode }) => 
     
     setError(null);
     try {
-      return await mockDb.addReadingRecord(recordData);
+      const now = new Date().toISOString();
+      const newRecord: ReadingRecord = {
+        ...recordData,
+        id: `record-${Date.now()}`,
+        userId: user?.uid || 'default-user',
+        createdAt: now,
+        updatedAt: now
+      };
+      
+      const updatedRecords = [...readingRecords, newRecord];
+      setReadingRecords(updatedRecords);
+      
+      // ローカルストレージに保存
+      safeLocalStorage.setItem(STORAGE_KEYS.READING_RECORDS, JSON.stringify(updatedRecords));
+      
+      return newRecord;
     } catch (error) {
       console.error('Failed to add reading record:', error);
       setError('読書記録の追加に失敗しました。');
@@ -245,7 +296,25 @@ export const ReadingProvider = ({ children }: { children: React.ReactNode }) => 
     
     setError(null);
     try {
-      return await mockDb.updateReadingRecord(id, recordData);
+      const recordIndex = readingRecords.findIndex(record => record.id === id);
+      if (recordIndex === -1) {
+        throw new Error(`Reading record with id ${id} not found`);
+      }
+      
+      const updatedRecord = {
+        ...readingRecords[recordIndex],
+        ...recordData,
+        updatedAt: new Date().toISOString()
+      };
+      
+      const updatedRecords = [...readingRecords];
+      updatedRecords[recordIndex] = updatedRecord;
+      setReadingRecords(updatedRecords);
+      
+      // ローカルストレージに保存
+      safeLocalStorage.setItem(STORAGE_KEYS.READING_RECORDS, JSON.stringify(updatedRecords));
+      
+      return updatedRecord;
     } catch (error) {
       console.error('Failed to update reading record:', error);
       setError('読書記録の更新に失敗しました。');
@@ -261,7 +330,11 @@ export const ReadingProvider = ({ children }: { children: React.ReactNode }) => 
     
     setError(null);
     try {
-      return await mockDb.deleteReadingRecord(id);
+      const updatedRecords = readingRecords.filter(record => record.id !== id);
+      setReadingRecords(updatedRecords);
+      
+      // ローカルストレージに保存
+      safeLocalStorage.setItem(STORAGE_KEYS.READING_RECORDS, JSON.stringify(updatedRecords));
     } catch (error) {
       console.error('Failed to delete reading record:', error);
       setError('読書記録の削除に失敗しました。');
@@ -290,12 +363,12 @@ export const ReadingProvider = ({ children }: { children: React.ReactNode }) => 
     deleteReadingRecord,
     getBookById,
     getReadingRecordsByBookId,
-    loading: loading || authLoading || !dataInitialized,
+    loading: loading || authLoading,
     error
   };
 
   // ローディング中のフォールバックUI
-  if (isClient && (loading || authLoading) && !dataInitialized) {
+  if (isClient && (loading || authLoading)) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
         <div className="text-center">

@@ -1,29 +1,20 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
 import { useReading } from '@/contexts/ReadingContext';
 
 export default function AnalyticsPage() {
-  const router = useRouter();
-  const { user, loading: authLoading } = useAuth();
   const { books, readingRecords, loading: readingLoading } = useReading();
   
   const [timeRange, setTimeRange] = useState<'week' | 'month' | 'year' | 'all'>('month');
 
-  // 認証状態の確認
-  if (authLoading || readingLoading) {
+  // ローディング中の表示
+  if (readingLoading) {
     return (
       <div className="flex justify-center items-center min-h-[calc(100vh-16rem)]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-indigo-500"></div>
       </div>
     );
-  }
-
-  if (!user) {
-    router.push('/auth/login');
-    return null;
   }
 
   // 期間に基づいて読書記録をフィルタリング
@@ -95,16 +86,16 @@ export default function AnalyticsPage() {
   // 日付でソート
   const sortedFrequency = Object.entries(readingFrequency)
     .sort(([dateA], [dateB]) => new Date(dateA).getTime() - new Date(dateB).getTime())
-    .slice(-10); // 直近10日間のみ表示
+    .slice(-7); // モバイル向けに直近7日間のみ表示
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">読書分析</h1>
+    <div className="max-w-lg mx-auto">
+      <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">読書分析</h1>
 
-      <div className="mb-6">
-        <div className="flex space-x-2 mb-4">
+      <div className="mb-4 sm:mb-6">
+        <div className="flex flex-wrap gap-2 mb-4">
           <button
-            className={`px-4 py-2 rounded-md ${
+            className={`px-3 py-1.5 text-sm rounded-md ${
               timeRange === 'week'
                 ? 'bg-indigo-600 text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -114,7 +105,7 @@ export default function AnalyticsPage() {
             1週間
           </button>
           <button
-            className={`px-4 py-2 rounded-md ${
+            className={`px-3 py-1.5 text-sm rounded-md ${
               timeRange === 'month'
                 ? 'bg-indigo-600 text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -124,7 +115,7 @@ export default function AnalyticsPage() {
             1ヶ月
           </button>
           <button
-            className={`px-4 py-2 rounded-md ${
+            className={`px-3 py-1.5 text-sm rounded-md ${
               timeRange === 'year'
                 ? 'bg-indigo-600 text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -134,7 +125,7 @@ export default function AnalyticsPage() {
             1年
           </button>
           <button
-            className={`px-4 py-2 rounded-md ${
+            className={`px-3 py-1.5 text-sm rounded-md ${
               timeRange === 'all'
                 ? 'bg-indigo-600 text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -146,36 +137,36 @@ export default function AnalyticsPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-          <h2 className="text-lg font-semibold mb-4">読書の概要</h2>
-          <div className="space-y-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm">
+          <h2 className="text-lg font-semibold mb-3 sm:mb-4">読書の概要</h2>
+          <div className="space-y-3 sm:space-y-4">
             <div>
               <p className="text-sm text-gray-500">読書記録数</p>
-              <p className="text-2xl font-bold">{filteredRecords.length}件</p>
+              <p className="text-xl sm:text-2xl font-bold">{filteredRecords.length}件</p>
             </div>
             <div>
               <p className="text-sm text-gray-500">読んだ回数</p>
-              <p className="text-2xl font-bold">{totalReadingCount}回</p>
+              <p className="text-xl sm:text-2xl font-bold">{totalReadingCount}回</p>
             </div>
             <div>
               <p className="text-sm text-gray-500">読んだ本の数</p>
-              <p className="text-2xl font-bold">{uniqueBookCount}冊</p>
+              <p className="text-xl sm:text-2xl font-bold">{uniqueBookCount}冊</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-          <h2 className="text-lg font-semibold mb-4">お気に入りの本</h2>
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm">
+          <h2 className="text-lg font-semibold mb-3 sm:mb-4">お気に入りの本</h2>
           {favoriteBooks.length > 0 ? (
-            <ul className="space-y-3">
+            <ul className="space-y-2 sm:space-y-3">
               {favoriteBooks.map(({ book, averageRating }) => (
                 <li key={book?.id} className="flex items-center">
                   <div className="flex mr-2">
                     {Array.from({ length: 5 }).map((_, i) => (
                       <span
                         key={i}
-                        className={`text-lg ${
+                        className={`text-base sm:text-lg ${
                           i < Math.round(averageRating) ? 'text-yellow-400' : 'text-gray-300'
                         }`}
                       >
@@ -183,21 +174,21 @@ export default function AnalyticsPage() {
                       </span>
                     ))}
                   </div>
-                  <span className="text-gray-800">{book?.title}</span>
+                  <span className="text-sm sm:text-base text-gray-800 truncate">{book?.title}</span>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="text-gray-500">データがありません</p>
+            <p className="text-gray-500 text-sm sm:text-base">データがありません</p>
           )}
         </div>
       </div>
 
-      <div className="bg-white p-6 rounded-lg shadow-sm mb-8">
-        <h2 className="text-lg font-semibold mb-4">読書の頻度</h2>
+      <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm mb-6">
+        <h2 className="text-lg font-semibold mb-3 sm:mb-4">読書の頻度</h2>
         {sortedFrequency.length > 0 ? (
-          <div className="h-64">
-            <div className="flex h-full items-end space-x-2">
+          <div className="h-48 sm:h-64">
+            <div className="flex h-full items-end space-x-1 sm:space-x-2">
               {sortedFrequency.map(([date, count]) => {
                 const maxCount = Math.max(...Object.values(readingFrequency));
                 const height = (count / maxCount) * 100;
@@ -208,9 +199,9 @@ export default function AnalyticsPage() {
                       className="w-full bg-indigo-500 rounded-t"
                       style={{ height: `${height}%` }}
                     ></div>
-                    <div className="text-xs text-gray-500 mt-1 transform -rotate-45 origin-top-left">
+                    <div className="text-xs text-gray-500 mt-1 transform -rotate-45 origin-top-left whitespace-nowrap">
                       {new Date(date).toLocaleDateString('ja-JP', {
-                        month: 'short',
+                        month: 'numeric',
                         day: 'numeric'
                       })}
                     </div>
@@ -220,21 +211,23 @@ export default function AnalyticsPage() {
             </div>
           </div>
         ) : (
-          <p className="text-gray-500">データがありません</p>
+          <p className="text-gray-500 text-sm sm:text-base">データがありません</p>
         )}
       </div>
 
-      <div className="bg-white p-6 rounded-lg shadow-sm mb-8">
-        <h2 className="text-lg font-semibold mb-4">読書目標</h2>
-        <p className="text-gray-500 mb-4">
-          読書目標を設定して、読書習慣を身につけましょう。
-        </p>
-        <button
-          className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
-          onClick={() => router.push('/goals/new')}
-        >
-          読書目標を設定する
-        </button>
+      <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm mb-6">
+        <h2 className="text-lg font-semibold mb-3 sm:mb-4">読書のヒント</h2>
+        <div className="space-y-3">
+          <p className="text-sm sm:text-base text-gray-600">
+            毎日少しずつ読書する習慣をつけると、子供の言語能力や想像力が育ちます。
+          </p>
+          <p className="text-sm sm:text-base text-gray-600">
+            同じ本を繰り返し読むことで、子供は安心感を得て、言葉や物語をより深く理解できるようになります。
+          </p>
+          <p className="text-sm sm:text-base text-gray-600">
+            読み聞かせの後に「どんなところが面白かった？」と質問すると、子供の理解度や感想を知ることができます。
+          </p>
+        </div>
       </div>
     </div>
   );
