@@ -26,7 +26,7 @@ export default function BooksPage() {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[calc(100vh-16rem)]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -83,18 +83,18 @@ export default function BooksPage() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex justify-between items-center mb-6">
         <h1 className="text-xl sm:text-2xl font-bold">えほん</h1>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="flex items-center px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors"
+          className="md-btn md-btn-primary md-ripple flex items-center"
         >
           <PlusIcon className="h-5 w-5 mr-1" />
           <span>新しい本を追加</span>
         </button>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 mb-8">
+      <div className="bg-surface rounded-lg elevation-1 p-4 sm:p-6 mb-8 animate-fadeIn">
         <BookList />
       </div>
 
@@ -107,14 +107,14 @@ export default function BooksPage() {
         <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
         
         <div className="fixed inset-0 flex items-center justify-center p-4">
-          <Dialog.Panel className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+          <Dialog.Panel className="w-full max-w-md rounded-lg bg-surface elevation-3 p-6 animate-scaleIn">
             <div className="flex justify-between items-center mb-4">
               <Dialog.Title className="text-lg font-medium">
                 新しい本を追加
               </Dialog.Title>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="text-gray-400 hover:text-gray-500"
+                className="text-neutral-400 hover:text-neutral-500 md-ripple bg-transparent"
               >
                 <XMarkIcon className="h-6 w-6" />
               </button>
@@ -123,8 +123,8 @@ export default function BooksPage() {
             <form onSubmit={handleAddBook}>
               <div className="space-y-4">
                 <div>
-                  <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
-                    タイトル <span className="text-red-500">*</span>
+                  <label htmlFor="title" className="block text-sm font-medium text-neutral-700 mb-1">
+                    タイトル <span className="text-error">*</span>
                   </label>
                   <input
                     type="text"
@@ -133,13 +133,13 @@ export default function BooksPage() {
                     value={newBook.title}
                     onChange={handleInputChange}
                     required
-                    className="block w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                    className="md-input"
                   />
                 </div>
                 
                 <div>
-                  <label htmlFor="author" className="block text-sm font-medium text-gray-700 mb-1">
-                    著者 <span className="text-red-500">*</span>
+                  <label htmlFor="author" className="block text-sm font-medium text-neutral-700 mb-1">
+                    著者 <span className="text-error">*</span>
                   </label>
                   <input
                     type="text"
@@ -148,12 +148,12 @@ export default function BooksPage() {
                     value={newBook.author}
                     onChange={handleInputChange}
                     required
-                    className="block w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                    className="md-input"
                   />
                 </div>
                 
                 <div>
-                  <label htmlFor="publisher" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="publisher" className="block text-sm font-medium text-neutral-700 mb-1">
                     出版社
                   </label>
                   <input
@@ -162,12 +162,12 @@ export default function BooksPage() {
                     name="publisher"
                     value={newBook.publisher}
                     onChange={handleInputChange}
-                    className="block w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                    className="md-input"
                   />
                 </div>
                 
                 <div>
-                  <label htmlFor="publishedYear" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="publishedYear" className="block text-sm font-medium text-neutral-700 mb-1">
                     出版年
                   </label>
                   <input
@@ -178,12 +178,12 @@ export default function BooksPage() {
                     onChange={handleInputChange}
                     min="1900"
                     max={new Date().getFullYear()}
-                    className="block w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                    className="md-input"
                   />
                 </div>
                 
                 <div>
-                  <label htmlFor="coverImage" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="coverImage" className="block text-sm font-medium text-neutral-700 mb-1">
                     表紙画像URL
                   </label>
                   <input
@@ -192,7 +192,7 @@ export default function BooksPage() {
                     name="coverImage"
                     value={newBook.coverImage}
                     onChange={handleInputChange}
-                    className="block w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                    className="md-input"
                   />
                 </div>
               </div>
@@ -201,14 +201,14 @@ export default function BooksPage() {
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50"
+                  className="md-btn md-btn-text md-ripple"
                 >
                   キャンセル
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:opacity-50"
+                  className="md-btn md-btn-primary md-ripple"
                 >
                   {isSubmitting ? '追加中...' : '追加する'}
                 </button>

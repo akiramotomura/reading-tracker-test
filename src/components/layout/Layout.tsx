@@ -17,13 +17,13 @@ export default function Layout({ children }: LayoutProps) {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <Navbar />
-      <main className="container mx-auto px-4 py-4 sm:py-6 max-w-lg sm:max-w-xl md:max-w-2xl lg:max-w-4xl pb-20 sm:pb-6">
+      <main className="container mx-auto px-4 py-4 sm:py-6 max-w-lg sm:max-w-xl md:max-w-2xl lg:max-w-4xl pb-20 sm:pb-6 animate-fadeIn">
         {children}
       </main>
-      <footer className="bg-white border-t border-gray-100 mt-8 hidden sm:block">
-        <div className="container mx-auto px-4 py-4 sm:py-6 text-center text-gray-500 text-sm">
+      <footer className="bg-surface border-t border-neutral-200 mt-8 hidden sm:block">
+        <div className="container mx-auto px-4 py-4 sm:py-6 text-center text-neutral-500 text-sm">
           <p>© {year} YOMITAI</p>
         </div>
       </footer>

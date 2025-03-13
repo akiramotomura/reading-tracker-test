@@ -1,9 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Disclosure } from '@headlessui/react';
-import { Bars3Icon, XMarkIcon, ChartBarIcon, BookOpenIcon } from '@heroicons/react/24/outline';
 import { useRouter, usePathname } from 'next/navigation';
+import { ChartBarIcon, BookOpenIcon } from '@heroicons/react/24/outline';
 
 // モバイル版のナビゲーション（2つのタブに簡略化）
 const navigation = [
@@ -13,10 +12,6 @@ const navigation = [
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ');
-}
-
-interface DisclosureRenderProps {
-  open: boolean;
 }
 
 export default function Navbar() {
@@ -51,13 +46,13 @@ export default function Navbar() {
   return (
     <>
       {/* デスクトップ用トップナビゲーション */}
-      <div className="hidden sm:block bg-white shadow-sm sticky top-0 z-20">
+      <div className="hidden sm:block bg-surface elevation-1 sticky top-0 z-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="relative flex h-16 items-center justify-between">
             <div className="flex flex-shrink-0 items-center">
               <button 
                 onClick={() => handleNavigation('/')}
-                className="text-primary text-xl font-bold"
+                className="text-primary text-xl font-bold md-ripple bg-transparent"
               >
                 YOMITAI
               </button>
@@ -69,9 +64,9 @@ export default function Navbar() {
                   onClick={() => handleNavigation(item.href)}
                   className={classNames(
                     item.current
-                      ? 'text-primary border-b-2 border-primary'
-                      : 'text-gray-500 hover:text-primary hover:border-b-2 hover:border-primary-300',
-                    'px-4 py-2 text-sm font-medium bg-transparent'
+                      ? 'md-nav-item-active'
+                      : 'md-nav-item',
+                    'md-ripple bg-transparent'
                   )}
                   aria-current={item.current ? 'page' : undefined}
                 >
@@ -84,7 +79,7 @@ export default function Navbar() {
       </div>
 
       {/* モバイル用ボトムタブナビゲーション */}
-      <div className="sm:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
+      <div className="sm:hidden fixed bottom-0 left-0 right-0 bg-surface elevation-2 z-50">
         <div className="grid grid-cols-2">
           {updatedNavigation.map((item) => {
             const Icon = item.icon;
@@ -95,8 +90,8 @@ export default function Navbar() {
                 className={classNames(
                   item.current
                     ? 'text-primary'
-                    : 'text-gray-500',
-                  'flex flex-col items-center justify-center py-4 bg-transparent w-full'
+                    : 'text-neutral-600',
+                  'flex flex-col items-center justify-center py-3 bg-transparent w-full md-ripple'
                 )}
               >
                 <Icon className="h-6 w-6" aria-hidden="true" />
@@ -108,11 +103,11 @@ export default function Navbar() {
       </div>
 
       {/* モバイル用ヘッダー（タイトルのみ） */}
-      <div className="sm:hidden bg-white shadow-sm sticky top-0 z-20">
+      <div className="sm:hidden bg-surface elevation-1 sticky top-0 z-20">
         <div className="px-4 py-3 flex items-center justify-center">
           <button 
             onClick={() => handleNavigation('/')}
-            className="text-primary text-lg font-bold bg-transparent"
+            className="text-primary text-lg font-bold bg-transparent md-ripple"
           >
             YOMITAI
           </button>

@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
-import { Noto_Sans_JP } from 'next/font/google';
+import { IBM_Plex_Sans_JP } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { ReadingProvider } from '@/contexts/ReadingContext';
 import Layout from '@/components/layout/Layout';
 import ClientErrorBoundary from '@/components/common/ClientErrorBoundary';
 
-const notoSansJP = Noto_Sans_JP({ 
+const ibmPlexSansJP = IBM_Plex_Sans_JP({ 
   subsets: ['latin'],
   weight: ['400', '500', '700'],
   display: 'swap',
@@ -26,11 +26,11 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <head>
-        <meta name="theme-color" content="#00af91" />
+        <meta name="theme-color" content="#00AF91" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
       </head>
-      <body className={notoSansJP.className}>
+      <body className={ibmPlexSansJP.className}>
         <ClientErrorBoundary>
           <AuthProvider>
             <ReadingProvider>
