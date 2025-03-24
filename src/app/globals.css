@@ -3,15 +3,15 @@
 @tailwind utilities;
 
 :root {
-  /* Material Design 3 Color System based on #00AF91 */
+  /* Material Design 3 Color System based on #0066CC (Blue) */
   
   /* Light Theme */
-  --md-primary: #0D6B58;
-  --md-on-primary: #FFFFFF;
-  --md-primary-container: #A2F2DA;
-  --md-on-primary-container: #005142;
+  --md-primary: #0066CC; /* Changed from #0D6B58 to #0066CC (blue) */
+  --md-on-primary: #FFFFFF; /* White text on blue background has good contrast */
+  --md-primary-container: #D1E4FF; /* Light blue container */
+  --md-on-primary-container: #001D36; /* Dark blue text on light blue container */
   
-  --md-secondary: #4B635B;
+  --md-secondary: #4B635B; /* Keeping secondary colors */
   --md-on-secondary: #FFFFFF;
   --md-secondary-container: #CDE9DE;
   --md-on-secondary-container: #344C44;
@@ -46,7 +46,7 @@
   
   --md-inverse-surface: #2B322F;
   --md-inverse-on-surface: #ECF2EE;
-  --md-inverse-primary: #86D6BF;
+  --md-inverse-primary: #9ECAFF; /* Light blue for inverse primary */
   
   --md-shadow: #000000;
   --md-scrim: #000000;
@@ -115,10 +115,10 @@
 @media (prefers-color-scheme: dark) {
   :root {
     /* Dark Theme */
-    --md-primary: #86D6BF;
-    --md-on-primary: #00382D;
-    --md-primary-container: #005142;
-    --md-on-primary-container: #A2F2DA;
+    --md-primary: #9ECAFF; /* Light blue for dark mode */
+    --md-on-primary: #003258; /* Dark blue text on light blue background */
+    --md-primary-container: #004A7F; /* Medium blue container for dark mode */
+    --md-on-primary-container: #D1E4FF; /* Light blue text on medium blue container */
     
     --md-secondary: #B2CCC2;
     --md-on-secondary: #1D352E;
@@ -155,7 +155,7 @@
     
     --md-inverse-surface: #DEE4E0;
     --md-inverse-on-surface: #2B322F;
-    --md-inverse-primary: #0D6B58;
+    --md-inverse-primary: #0066CC; /* Blue for inverse primary in dark mode */
   }
 }
 
@@ -652,63 +652,3 @@ body {
 
 .text-error { color: var(--md-error); }
 .text-on-error { color: var(--md-on-error); }
-.text-error-container { color: var(--md-error-container); }
-.text-on-error-container { color: var(--md-on-error-container); }
-
-.text-surface { color: var(--md-surface); }
-.text-on-surface { color: var(--md-on-surface); }
-.text-surface-variant { color: var(--md-surface-variant); }
-.text-on-surface-variant { color: var(--md-on-surface-variant); }
-
-.text-outline { color: var(--md-outline); }
-.text-outline-variant { color: var(--md-outline-variant); }
-
-.bg-primary { background-color: var(--md-primary); }
-.bg-on-primary { background-color: var(--md-on-primary); }
-.bg-primary-container { background-color: var(--md-primary-container); }
-.bg-on-primary-container { background-color: var(--md-on-primary-container); }
-
-.bg-secondary { background-color: var(--md-secondary); }
-.bg-on-secondary { background-color: var(--md-on-secondary); }
-.bg-secondary-container { background-color: var(--md-secondary-container); }
-.bg-on-secondary-container { background-color: var(--md-on-secondary-container); }
-
-.bg-tertiary { background-color: var(--md-tertiary); }
-.bg-on-tertiary { background-color: var(--md-on-tertiary); }
-.bg-tertiary-container { background-color: var(--md-tertiary-container); }
-.bg-on-tertiary-container { background-color: var(--md-on-tertiary-container); }
-
-.bg-error { background-color: var(--md-error); }
-.bg-on-error { background-color: var(--md-on-error); }
-.bg-error-container { background-color: var(--md-error-container); }
-.bg-on-error-container { background-color: var(--md-on-error-container); }
-
-.bg-surface { background-color: var(--md-surface); }
-.bg-on-surface { background-color: var(--md-on-surface); }
-.bg-surface-variant { background-color: var(--md-surface-variant); }
-.bg-on-surface-variant { background-color: var(--md-on-surface-variant); }
-
-.bg-background { background-color: var(--md-background); }
-.bg-on-background { background-color: var(--md-on-background); }
-
-.bg-surface-container-lowest { background-color: var(--md-surface-container-lowest); }
-.bg-surface-container-low { background-color: var(--md-surface-container-low); }
-.bg-surface-container { background-color: var(--md-surface-container); }
-.bg-surface-container-high { background-color: var(--md-surface-container-high); }
-.bg-surface-container-highest { background-color: var(--md-surface-container-highest); }
-
-/* Elevation utility classes */
-.elevation-1 { box-shadow: var(--md-elevation-level1); }
-.elevation-2 { box-shadow: var(--md-elevation-level2); }
-.elevation-3 { box-shadow: var(--md-elevation-level3); }
-.elevation-4 { box-shadow: var(--md-elevation-level4); }
-.elevation-5 { box-shadow: var(--md-elevation-level5); }
-
-/* Shape utility classes */
-.rounded-none { border-radius: var(--md-shape-corner-none); }
-.rounded-xs { border-radius: var(--md-shape-corner-extra-small); }
-.rounded-sm { border-radius: var(--md-shape-corner-small); }
-.rounded-md { border-radius: var(--md-shape-corner-medium); }
-.rounded-lg { border-radius: var(--md-shape-corner-large); }
-.rounded-xl { border-radius: var(--md-shape-corner-extra-large); }
-.rounded-full { border-radius: var(--md-shape-corner-full); }
